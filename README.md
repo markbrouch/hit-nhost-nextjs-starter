@@ -3,5 +3,8 @@
 
 Usage:
 
-`npm run load ../gedcom/mookuauhau.ged`
+```
+npm run build
+npm run load ../gedcom/mookuauhau.ged
+```
 
