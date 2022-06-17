@@ -1,5 +1,7 @@
 
 import { driver as neo4jdriver, auth as neo4jauth } from 'neo4j-driver';
+import { createPerson, linkPersons } from './lib/neo4j-mutations.js';
+import { Person } from './models/Person.js';
 
 const NEO4J_ENDPOINT = process.env.NEO4J_ENDPOINT || 'bolt://localhost';
 const NEO4J_USER = process.env.NEO4J_USER || 'neo4j';
@@ -7,21 +9,19 @@ const NEO4J_PASS = process.env.NEO4J_PASS || '';
 
 const driver = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
 const session = driver.session()
-const personName = 'Alice'
 
 try {
-  const result = await session.run(
-    'CREATE (a:Person {name: $name}) RETURN a',
-    { name: personName }
-  )
 
-  const singleRecord = result.records[0]
-  const node = singleRecord.get(0)
+    const alice = await createPerson(driver, session, new Person({name: 'Alice'}));
+    const lopaka = await createPerson(driver, session, new Person({name: 'Lopaka'}));
 
-  console.log(node.properties.name)
+    await linkPersons(session, alice?.properties.name, 'follows', lopaka?.properties.name);
+
 } finally {
-  await session.close()
+    await session.close()
 }
 
 // on application exit:
 await driver.close()
+
+

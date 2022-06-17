@@ -8,7 +8,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "load": "node -r dotenv/config ./dist/index.js",
+    "show": "node -r dotenv/config ./dist/index.js",
+    "astload": "node -r dotenv/config ./dist/astload.js",
+    "load": "node -r dotenv/config ./dist/compactload.js",
     "4j": "node -r dotenv/config ./dist/neo4jtest.js",
     "cli": "ts-node src/cli.ts",
     "test": "jest",
