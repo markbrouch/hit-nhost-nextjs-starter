@@ -66,12 +66,12 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
             neo4jsession = driver.session();
         }
 
-        let params = {
+        let params: { [key: string]: any } = {
             formal_name: fam.formal_name,
-            xref_id: fam.xref_id,
-            wife: fam.wife,
-            husband: fam.husband,
         };
+        if (fam.formal_name) { params.formal_name = fam.formal_name; }
+        if (fam.wife) { params.wife = fam.wife; }
+        if (fam.husband) { params.husband = fam.husband; }
 
         const result = await neo4jsession.run(
             'CREATE (a:Family {' + Object.keys(params).map((x) => `${x}: $${x}`).join(', ') + '}) RETURN a',
@@ -83,60 +83,104 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
 
         console.log(node?.properties.name);
 
-        if (fam.xref_id && fam.husband) {
-            famLinkParent(neo4jsession, fam.xref_id, fam.husband);
-        }
-        if (fam.xref_id && fam.wife) {
-            famLinkParent(neo4jsession, fam.xref_id, fam.wife);
-        }
-
-        if (fam.children) {
-            fam.children.forEach((c) => {
-                if (fam.xref_id && c.xref_id) {
-                    famLinkChild(neo4jsession, fam.xref_id, c.xref_id);
-                }
-            });
-        }
-
     } finally {
         if (neo4jsession) {
             console.log('closing neo4jsession [family]');
-            neo4jsession.close();
+            await neo4jsession.close();
         }
     }
 
+    // relations / edges
+
+    if (fam.xref_id && fam.husband) {
+        famLinkParent(driver, neo4jsession, fam.xref_id, fam.husband);
+    }
+
+    if (fam.xref_id && fam.wife) {
+        famLinkParent(driver, neo4jsession, fam.xref_id, fam.wife);
+    }
+
+    if (fam.children) {
+        fam.children.forEach((c) => {
+            if (fam.xref_id && c.xref_id) {
+                famLinkChild(driver, neo4jsession, fam.xref_id, c.xref_id);
+            }
+
+            if (fam.xref_id && c.xref_id && fam.husband) {
+                linkChildParentDirect(driver, neo4jsession, fam.husband, c.xref_id);
+            }
+
+            if (fam.xref_id && c.xref_id && fam.wife) {
+                linkChildParentDirect(driver, neo4jsession, fam.wife, c.xref_id);
+            }
+
+        });
+    }
+
     return node;
+}
+
+export async function famLinkParent(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
+    console.log(`famLinkParent() ${fam_id} ${person_id}`);
+    const rel = 'IS_PARENT';
+
+    try {
+
+        if (driver) {
+            console.log('opening neo4jsession [family_relations]');
+            neo4jsession = driver.session();
+        }
+
+        const result = await neo4jsession.run(
+            `
+MATCH (f:Family {xref_id: $fam_id})
+MATCH (p:Person {xref_id: $person_id})
+CREATE (p)-[rel:${rel}]->(f)
+            `,
+            { fam_id: fam_id, person_id: person_id }
+        );
+
+        console.log(result);
+    } finally {
+        if (neo4jsession) {
+            console.log('closing neo4jsession [family_relations]');
+            neo4jsession.close();
+        }
+        await sleepytime();
+    }
 
 }
 
-export async function famLinkParent(session: Session, fam_id: string, person_id: string) {
-    console.log('famLinkParent()');
-    const rel = 'parent';
-    const result = await session.run(
-        `
-MATCH (f:Family {xref_id: '$fam_id'})
-MATCH (p:Person {xref_id: '$person_id'})
-CREATE (f)-[rel:${rel}]->(p)
-        `,
-        { fam_id: fam_id, person_id: person_id }
-    );
+export async function famLinkChild(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
+    console.log(`famLinkChild() ${fam_id} ${person_id}`);
+    const rel = 'IS_CHILD';
+    try {
 
-    console.log(result);
-}
+        if (driver) {
+            console.log('opening neo4jsession [family_relations]');
+            neo4jsession = driver.session();
+        }
 
-export async function famLinkChild(session: Session, fam_id: string, person_id: string) {
-    console.log('famLinkChild()');
-    const rel = 'child';
-    const result = await session.run(
-        `
-MATCH (f:Family {xref_id: '$fam_id'})
-MATCH (p:Person {xref_id: '$person_id'})
-CREATE (f)-[rel:${rel}]->(p)
-        `,
-        { fam_id: fam_id, person_id: person_id }
-    );
+        const result = await neo4jsession.run(
+            `
+MATCH (f:Family {xref_id: $fam_id})
+MATCH (p:Person {xref_id: $person_id})
+CREATE (p)-[rel:${rel}]->(f)
+            `,
+            { fam_id: fam_id, person_id: person_id }
+        );
 
-    console.log(result);
+        console.log(result);
+    } finally {
+        if (neo4jsession) {
+            console.log('closing neo4jsession [family_relations]');
+            neo4jsession.close();
+        }
+        await sleepytime();
+    }
+
+
+    // MATCH path=(p:Person)-[:child]->(par)
 }
 
 export async function linkPersons(session: Session, name1: string, rel: string, name2: string) {
@@ -152,3 +196,45 @@ CREATE (n1)-[rel:${rel}]->(n2)
     console.log(result);
 }
 
+export async function linkChildParentDirect(driver: Driver | undefined, neo4jsession: Session, parentId: string, childId: string) {
+    console.log(`linkChildParentDirect() ${parentId} ${childId}`);
+    const rel = 'IS_CHILD';
+    try {
+
+        if (driver) {
+            console.log('opening neo4jsession [family_relations]');
+            neo4jsession = driver.session();
+        }
+
+        const result = await neo4jsession.run(
+            `
+    MATCH (cp:Person {xref_id: '${childId}'})
+    MATCH (pp:Person {xref_id: '${parentId}'})
+    CREATE (cp)-[rel:IS_CHILD]->(pp)
+            `,
+            { childId: childId, parentId: parentId }
+        );
+    
+        console.log(result);
+
+    } finally {
+        if (neo4jsession) {
+            console.log('closing neo4jsession [child_direct]');
+            neo4jsession.close();
+        }
+
+        await sleepytime();
+    }
+
+}
+
+export async function sleepytime() {
+    const sleeptime = 100;
+    // https://stackoverflow.com/a/38084640/408747
+    await setTimeout(
+        () => {
+            console.log(`waiting ${sleeptime}...`);
+        }
+        , sleeptime
+    );
+}

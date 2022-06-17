@@ -134,17 +134,9 @@ async function individual(item: Parent, neo4jsession: Session, recordsByType: { 
         });
     }
     if (person) {
-        const sleeptime = 100;
-
         const rv = await createPerson(driver, neo4jsession, person);
-        // https://stackoverflow.com/a/38084640/408747
-        await setTimeout(
-            ()=>
-            {
-                console.log(`waiting ${sleeptime}...`);
-            }
-            , sleeptime
-        );
+
+        await sleepytime();
     }
 
 }
@@ -187,17 +179,9 @@ async function family(item: Parent, neo4jsession: Session, recordsByType: { [key
     }
 
     if (fam) {
-        const sleeptime = 100;
-
         const rv = await createFamily(driver, neo4jsession, fam);
-        // https://stackoverflow.com/a/38084640/408747
-        await setTimeout(
-            ()=>
-            {
-                console.log(`waiting ${sleeptime}...`);
-            }
-            , sleeptime
-        );
+        
+        await sleepytime();
     }
 
 }
@@ -223,7 +207,7 @@ import { Data, Node } from 'unist';
 import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
-import { createFamily, createPerson } from "./neo4j-mutations.js";
+import { createFamily, createPerson, sleepytime } from "./neo4j-mutations.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
