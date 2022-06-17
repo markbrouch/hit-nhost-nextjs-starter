@@ -101,7 +101,11 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     }
 
     if (fam.children) {
-        fam.children.forEach((c) => {
+
+
+        for (let index = 0; index < fam.children.length; index++) {
+            const c = fam.children[index];
+
             if (fam.xref_id && c.xref_id) {
                 famLinkChild(driver, neo4jsession, fam.xref_id, c.xref_id);
             }
@@ -114,7 +118,7 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
                 linkChildParentDirect(driver, neo4jsession, fam.wife, c.xref_id);
             }
 
-        });
+        }
     }
 
     return node;
@@ -202,16 +206,25 @@ export async function linkChildParentDirect(driver: Driver | undefined, neo4jses
     try {
 
         if (driver) {
-            console.log('opening neo4jsession [family_relations]');
+            console.log('opening neo4jsession [child_direct]');
             neo4jsession = driver.session();
         }
 
+        const mutation = `
+        MATCH (cp:Person {xref_id: '${childId}'})
+        MATCH (pp:Person {xref_id: '${parentId}'})
+        CREATE (cp)-[rel:IS_CHILD]->(pp)
+                `;
+        console.log("mutation: ", mutation);
+
+        // Neo4jError: ForsetiClient[transactionId=136773, clientId=4764] can't acquire ExclusiveLock{owner=ForsetiClient[transactionId=136772, clientId=4770]} on RELATIONSHIP(4166), because holders of that lock are waiting for ForsetiClient[transactionId=136773, clientId=4764].
+        // Wait list:ExclusiveLock[
+        // Client[136772] waits for [ForsetiClient[transactionId=136773, clientId=4764]]]
+        // https://github.com/neo4j/neo4j/issues/6248
+        // https://neo4j.com/docs/java-reference/current/transaction-management/#transactions-deadlocks
+        // creating indexes seems to help
         const result = await neo4jsession.run(
-            `
-    MATCH (cp:Person {xref_id: '${childId}'})
-    MATCH (pp:Person {xref_id: '${parentId}'})
-    CREATE (cp)-[rel:IS_CHILD]->(pp)
-            `,
+            mutation,
             { childId: childId, parentId: parentId }
         );
     
@@ -228,8 +241,46 @@ export async function linkChildParentDirect(driver: Driver | undefined, neo4jses
 
 }
 
+export async function indexCreation(driver: Driver | undefined, neo4jsession: Session | undefined) {
+    console.log(`indexCreation()`);
+    try {
+
+        if (driver) {
+            console.log('opening neo4jsession [indexCreation]');
+            neo4jsession = driver.session();
+        }
+
+        const mutations = [
+            `CREATE INDEX ix_person_xrefid IF NOT EXISTS FOR (n:Person) ON (n.xref_id)`,
+            `CREATE INDEX ix_person_name IF NOT EXISTS FOR (n:Person) ON (n.name)`,
+            `CREATE INDEX ix_family_xrefid IF NOT EXISTS FOR (n:Family) ON (n.xref_id)`,
+        ];
+
+        for(let i=0; i < mutations.length; i++ ) {
+            const mutation = mutations[i];
+            console.log("mutation: ", mutation);
+            if( neo4jsession ) {
+                const result = await neo4jsession.run(
+                    mutation,
+                    { }
+                );
+                console.log(result);
+            }
+        }
+
+    } finally {
+        if (neo4jsession) {
+            console.log('closing neo4jsession [indexCreation]');
+            neo4jsession.close();
+        }
+
+        await sleepytime();
+    }
+
+}
+
 export async function sleepytime() {
-    const sleeptime = 100;
+    const sleeptime = 1000;
     // https://stackoverflow.com/a/38084640/408747
     await setTimeout(
         () => {

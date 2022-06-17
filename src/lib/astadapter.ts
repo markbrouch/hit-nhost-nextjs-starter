@@ -58,6 +58,10 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
                     recordsByType[item.type] = 1;
                 }
 
+                if(index === 10) {
+                    await indexCreation(driver, neo4jsession);
+                }
+
             }
         }
         if (neo4jsession) {
@@ -180,7 +184,7 @@ async function family(item: Parent, neo4jsession: Session, recordsByType: { [key
 
     if (fam) {
         const rv = await createFamily(driver, neo4jsession, fam);
-        
+
         await sleepytime();
     }
 
@@ -207,7 +211,7 @@ import { Data, Node } from 'unist';
 import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
-import { createFamily, createPerson, sleepytime } from "./neo4j-mutations.js";
+import { createFamily, createPerson, indexCreation, sleepytime } from "./neo4j-mutations.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
