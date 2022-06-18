@@ -67,6 +67,7 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
         }
 
         let params: { [key: string]: any } = {
+            xref_id: fam.xref_id,
             formal_name: fam.formal_name,
         };
         if (fam.formal_name) { params.formal_name = fam.formal_name; }
@@ -95,9 +96,15 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     if (fam.xref_id && fam.husband) {
         famLinkParent(driver, neo4jsession, fam.xref_id, fam.husband);
     }
+    else {
+        console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
+    }
 
     if (fam.xref_id && fam.wife) {
         famLinkParent(driver, neo4jsession, fam.xref_id, fam.wife);
+    }
+    else {
+        console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
     }
 
     if (fam.children) {
@@ -109,13 +116,16 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
             if (fam.xref_id && c.xref_id) {
                 famLinkChild(driver, neo4jsession, fam.xref_id, c.xref_id);
             }
-
+            else {
+                console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
+            }
+        
             if (fam.xref_id && c.xref_id && fam.husband) {
-                linkChildParentDirect(driver, neo4jsession, fam.husband, c.xref_id);
+                // linkChildParentDirect(driver, neo4jsession, fam.husband, c.xref_id);
             }
 
             if (fam.xref_id && c.xref_id && fam.wife) {
-                linkChildParentDirect(driver, neo4jsession, fam.wife, c.xref_id);
+                // linkChildParentDirect(driver, neo4jsession, fam.wife, c.xref_id);
             }
 
         }
@@ -126,7 +136,7 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
 
 export async function famLinkParent(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
     console.log(`famLinkParent() ${fam_id} ${person_id}`);
-    const rel = 'IS_PARENT';
+    const rel = 'FAM_PARENT';
 
     try {
 
@@ -137,14 +147,15 @@ export async function famLinkParent(driver: Driver | undefined, neo4jsession: Se
 
         const result = await neo4jsession.run(
             `
-MATCH (f:Family {xref_id: $fam_id})
-MATCH (p:Person {xref_id: $person_id})
+MATCH (f:Family {xref_id: '${fam_id}'})
+MATCH (p:Person {xref_id: '${person_id}'})
 CREATE (p)-[rel:${rel}]->(f)
             `,
-            { fam_id: fam_id, person_id: person_id }
+            {}
+            // { fam_id: fam_id, person_id: person_id } // not used?
         );
 
-        console.log(result);
+        // console.log(result);
     } finally {
         if (neo4jsession) {
             console.log('closing neo4jsession [family_relations]');
@@ -157,27 +168,27 @@ CREATE (p)-[rel:${rel}]->(f)
 
 export async function famLinkChild(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
-    const rel = 'IS_CHILD';
     try {
 
         if (driver) {
-            console.log('opening neo4jsession [family_relations]');
+            console.log('opening neo4jsession [famLinkChild]');
             neo4jsession = driver.session();
         }
 
         const result = await neo4jsession.run(
             `
-MATCH (f:Family {xref_id: $fam_id})
-MATCH (p:Person {xref_id: $person_id})
-CREATE (p)-[rel:${rel}]->(f)
+MATCH (f:Family {xref_id: '${fam_id}'})
+MATCH (p:Person {xref_id: '${person_id}'})
+CREATE (p)-[rel:FAM_CHILD]->(f)
             `,
-            { fam_id: fam_id, person_id: person_id }
+            {}
+            // { fam_id: fam_id, person_id: person_id } // not used?
         );
 
-        console.log(result);
+        // console.log(result);
     } finally {
         if (neo4jsession) {
-            console.log('closing neo4jsession [family_relations]');
+            console.log('closing neo4jsession [famLinkChild]');
             neo4jsession.close();
         }
         await sleepytime();
@@ -202,7 +213,6 @@ CREATE (n1)-[rel:${rel}]->(n2)
 
 export async function linkChildParentDirect(driver: Driver | undefined, neo4jsession: Session, parentId: string, childId: string) {
     console.log(`linkChildParentDirect() ${parentId} ${childId}`);
-    const rel = 'IS_CHILD';
     try {
 
         if (driver) {
@@ -225,10 +235,11 @@ export async function linkChildParentDirect(driver: Driver | undefined, neo4jses
         // creating indexes seems to help
         const result = await neo4jsession.run(
             mutation,
-            { childId: childId, parentId: parentId }
+            {}
+            // { childId: childId, parentId: parentId } // not used?
         );
     
-        console.log(result);
+        // console.log(result);
 
     } finally {
         if (neo4jsession) {
