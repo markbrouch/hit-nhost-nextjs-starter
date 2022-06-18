@@ -94,14 +94,14 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     // relations / edges
 
     if (fam.xref_id && fam.husband) {
-        famLinkParent(driver, neo4jsession, fam.xref_id, fam.husband);
+        famLinkParent(driver, neo4jsession, fam.xref_id, fam.husband, 'k');
     }
     else {
         console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
     }
 
     if (fam.xref_id && fam.wife) {
-        famLinkParent(driver, neo4jsession, fam.xref_id, fam.wife);
+        famLinkParent(driver, neo4jsession, fam.xref_id, fam.wife, 'w');
     }
     else {
         console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
@@ -134,9 +134,9 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     return node;
 }
 
-export async function famLinkParent(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
-    console.log(`famLinkParent() ${fam_id} ${person_id}`);
-    const rel = 'FAM_PARENT';
+export async function famLinkParent(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string, ptype: string) {
+    console.log(`famLinkParent() ${fam_id} ${person_id} ${ptype}`);
+    const rel = ptype.toUpperCase(); // K W
 
     try {
 
@@ -179,7 +179,7 @@ export async function famLinkChild(driver: Driver | undefined, neo4jsession: Ses
             `
 MATCH (f:Family {xref_id: '${fam_id}'})
 MATCH (p:Person {xref_id: '${person_id}'})
-CREATE (p)-[rel:FAM_CHILD]->(f)
+CREATE (f)-[rel:CHILD]->(p)
             `,
             {}
             // { fam_id: fam_id, person_id: person_id } // not used?
@@ -262,6 +262,10 @@ export async function indexCreation(driver: Driver | undefined, neo4jsession: Se
         }
 
         const mutations = [
+            // `DROP INDEX ix_person_xrefid `,
+            // `DROP INDEX ix_person_name `,
+            // `DROP INDEX ix_family_xrefid `,
+
             `CREATE INDEX ix_person_xrefid IF NOT EXISTS FOR (n:Person) ON (n.xref_id)`,
             `CREATE INDEX ix_person_name IF NOT EXISTS FOR (n:Person) ON (n.name)`,
             `CREATE INDEX ix_family_xrefid IF NOT EXISTS FOR (n:Family) ON (n.xref_id)`,
