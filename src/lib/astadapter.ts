@@ -277,11 +277,14 @@ function printChildren(item: Parent) {
 }
 
 function itemToPerson(item: any) {
+    console.log(`itemToPerson()`);
     if (item.type !== 'INDI') {
         return;
     }
 
     const data = item?.data;
+
+    console.log("data: ", data);
 
     const person = new Person({
         formal_name: data?.formal_name,
@@ -290,6 +293,17 @@ function itemToPerson(item: any) {
         sex: data?.SEX,
         family_child: data['@FAMILY_CHILD'],
         family_spouse: data['@FAMILY_SPOUSE'],
+
+        change_date: data['CHANGE/DATE'],
+
+        name_surname: data['NAME/SURNAME'],
+        name_aka: data['NAME/_AKA'],
+        birth_date: data['BIRTH/DATE'],
+        birth_place: data['BIRTH/PLACE'],
+        source_uid: data['_UID'],
+
+        burial_place: data['BURIAL/PLACE'], // ???
+
     });
 
     if (data['@FAMILY_CHILD']) {

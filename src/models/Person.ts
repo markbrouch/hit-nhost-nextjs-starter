@@ -5,6 +5,7 @@ export class Person {
     sex: string|undefined;
     _uid: string|undefined;
     name_surname: string|undefined;
+    name_aka: string|undefined;
     birth_date: Date|undefined;
     birth_place: string|undefined;
     family_spouse: Array<string>|undefined;
@@ -15,6 +16,7 @@ export class Person {
     burial_place: string|undefined;
 
     change_date: Date|undefined;
+    source_uid: string|undefined;
 
     public constructor(init?:Partial<Person>) {
         Object.assign(this, init);
