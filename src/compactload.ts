@@ -11,7 +11,8 @@ if(RECORD_LIMIT) {
   console.log(`RECORD_LIMIT: ${RECORD_LIMIT}`);
 }
 
-const insertMode = process.env.INSERT_MODE ? true : false;
+// console.log(`process.env.INSERT_MODE: '${process.env.INSERT_MODE}'`);
+const insertMode = process.env.INSERT_MODE === 'true' ? true : false;
 
 import * as Fs from "fs";
 import { toD3Force, parse, toDot, compact } from 'parse-gedcom';
@@ -47,7 +48,7 @@ type ExtKey = keyof typeof EXTENSION_TO_TYPE;
     Fs.writeFileSync(outfile, output, "utf8");
   } else {
     // process.stdout.write(output);
-
+    
     transform(parsed, insertMode, RECORD_LIMIT);
 
   }

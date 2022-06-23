@@ -10,9 +10,11 @@ const NEO4J_PASS = process.env.NEO4J_PASS || '';
 let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
 
 export async function transform(gedcom: { [key: string]: any }, insertMode: boolean, recordLimit: number) {
+    console.log(`transform()`);
 
     let neo4jsession: Session | undefined;
 
+    console.log(`insertMode: ${insertMode}`);
     if (insertMode) {
         // driver = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
         // neo4jsession = driver.session()
@@ -59,7 +61,9 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
                 }
 
                 if(index === 10) {
-                    await indexCreation(driver, neo4jsession);
+                    if (insertMode) {
+                        await indexCreation(driver, neo4jsession);
+                    }
                 }
 
             }
@@ -80,8 +84,8 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
 
 const strategy: { [key: string]: any } = {
     'HEAD': (item: Parent) => header(item),
-    'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }) => individual(item, neo4jsession, recordsByType),
-    'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }) => family(item, neo4jsession, recordsByType),
+    'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, neo4jsession, recordsByType, insertMode),
+    'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, neo4jsession, recordsByType, insertMode),
     'REPO': (item: Parent) => repository(item),
     'SOUR': (item: Parent) => source(item),
     'TRLR': (item: Parent) => trailer(item),
@@ -101,7 +105,7 @@ function header(item: Parent) {
     console.log(`header()`);
 }
 
-async function individual(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }) {
+async function individual(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
@@ -137,7 +141,7 @@ async function individual(item: Parent, neo4jsession: Session, recordsByType: { 
 
         });
     }
-    if (person) {
+    if (person && insertMode) {
         const rv = await createPerson(driver, neo4jsession, person);
 
         await sleepytime();
@@ -145,7 +149,7 @@ async function individual(item: Parent, neo4jsession: Session, recordsByType: { 
 
 }
 
-async function family(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }) {
+async function family(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) {
     console.log(`family()`);
     console.log(item);
 
@@ -182,7 +186,7 @@ async function family(item: Parent, neo4jsession: Session, recordsByType: { [key
         });
     }
 
-    if (fam) {
+    if (fam && insertMode) {
         const rv = await createFamily(driver, neo4jsession, fam);
 
         await sleepytime();
