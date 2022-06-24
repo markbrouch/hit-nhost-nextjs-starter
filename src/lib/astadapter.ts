@@ -18,6 +18,8 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
     if (insertMode) {
         // driver = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
         // neo4jsession = driver.session()
+
+
     }
 
     const gedcomJson = JSON.stringify(gedcom);
@@ -82,7 +84,7 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
     }
 }
 
-const strategy: { [key: string]: any } = {
+const strategy_neo4j: { [key: string]: any } = {
     'HEAD': (item: Parent) => header(item),
     'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, neo4jsession, recordsByType, insertMode),
     'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, neo4jsession, recordsByType, insertMode),
@@ -100,6 +102,28 @@ const strategy: { [key: string]: any } = {
     'WIFE': (subitem: Parent, item: Parent) => fam_wife(subitem, item),
     'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
 }
+
+const strategy_graphql: { [key: string]: any } = {
+    // 'HEAD': (item: Parent) => header(item),
+    // 'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, neo4jsession, recordsByType, insertMode),
+    // 'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, neo4jsession, recordsByType, insertMode),
+    // 'REPO': (item: Parent) => repository(item),
+    // 'SOUR': (item: Parent) => source(item),
+    // 'TRLR': (item: Parent) => trailer(item),
+    // // subtypes
+    // 'SEX': (item: Parent) => gender(item),
+    // 'NAME': (item: Parent) => name(item),
+    // 'FAMS': (subitem: Parent, item: Parent) => familyspouse(subitem, item),
+    // 'BIRT': (item: Parent) => gender(item),
+    // 'DEAT': (item: Parent) => gender(item),
+    // 'PLAC': (item: Parent) => gender(item),
+    // 'HUSB': (subitem: Parent, item: Parent) => fam_husb(subitem, item),
+    // 'WIFE': (subitem: Parent, item: Parent) => fam_wife(subitem, item),
+    // 'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
+}
+
+const strategy = strategy_neo4j;
+// const strategy = strategy_graphql;
 
 function header(item: Parent) {
     console.log(`header()`);

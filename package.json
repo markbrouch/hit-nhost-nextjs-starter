@@ -21,7 +21,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nhost/nhost-js": "^1.4.1",
     "dotenv": "^16.0.1",
+    "graphql-request": "^4.3.0",
     "neo4j-driver": "^4.4.6",
     "parse-gedcom": "^2.0.1"
   },

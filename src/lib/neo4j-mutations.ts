@@ -4,7 +4,7 @@ import { Family } from '../models/Family.js';
 import { Person } from '../models/Person.js';
 
 export async function createPerson(driver: Driver | undefined, neo4jsession: Session, person: Person): Promise<Neo4jnode | undefined> {
-    console.log("createFamily()");
+    console.log("createPerson()");
     let node: Neo4jnode | undefined = undefined;
 
     try {
