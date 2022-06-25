@@ -1,0 +1,82 @@
+table:
+  schema: public
+  name: ohana
+object_relationships:
+  - name: kanaka
+    using:
+      foreign_key_constraint_on: kane_id
+  - name: kanakaByWahineId
+    using:
+      foreign_key_constraint_on: wahine_id
+insert_permissions:
+  - role: public
+    permission:
+      check: {}
+      columns:
+        - sex
+        - marriage_date_dt
+        - kane_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+        - owner_id
+select_permissions:
+  - role: public
+    permission:
+      columns:
+        - sex
+        - marriage_date_dt
+        - kane_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+        - owner_id
+      filter: {}
+update_permissions:
+  - role: public
+    permission:
+      columns:
+        - sex
+        - marriage_date_dt
+        - kane_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+        - owner_id
+      filter: {}
+      check: {}
+delete_permissions:
+  - role: public
+    permission:
+      backend_only: false
+      filter: {}
