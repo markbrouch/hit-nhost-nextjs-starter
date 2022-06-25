@@ -138,8 +138,10 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
                 if(kamalii.kanaka.length > 0) {
                     // first
                     const kid = kamalii.kanaka[0]?.kanaka_id;
+                    const kid_xref_id = kamalii.kanaka[0]?.xref_id;
                     console.log("kid: ", kid);
-                    const crv = await famLinkChild(ohana_id, kid, role, jwt_token);
+                    console.log("kid_xref_id: ", kid_xref_id);
+                    const crv = await famLinkChild(fam.xref_id, kid_xref_id, role, jwt_token);
                 }
                 else {
                     console.log("kamalii not linked to kanaka record - not normal");
