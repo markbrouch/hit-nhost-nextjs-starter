@@ -237,3 +237,16 @@ export async function sleepytime() {
     );
 }
 
+export function appCloseHandler() {
+
+}
+
+export const mutation_fns: { [key: string]: Function } = {
+    'createperson': (person: Person, role: string, jwt_token: string) => createPerson(person, role, jwt_token),
+    'createfamily': (fam: Family, role: string, jwt_token: string) => createFamily(fam, role, jwt_token),
+    'linkfamparent': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, ptype),
+    'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),
+    'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
+    'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
+    'close': () => appCloseHandler(),
+}

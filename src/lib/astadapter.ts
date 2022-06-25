@@ -1,17 +1,28 @@
 
 import { Parent } from "unist";
-
-export async function transform(gedcom: { [key: string]: any }, insertMode: boolean, recordLimit: number) {
+import { mutation_fns as neo4j_mutation_fns } from "./neo4j-mutations.js";
+import { mutation_fns as graphql_mutation_fns } from "./graphql-mutations.js";
+ 
+export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number) {
     console.log(`transform()`);
+
+    console.log(`mutationMode: ${mutationMode}`);
+    // this allows us to plug in which mutation functions to use
+    let mutation_fns: { [key: string]: Function }| undefined;
+    if (mutationMode === 'graphql') {
+        mutation_fns = graphql_mutation_fns;
+    }
+    else {
+        mutation_fns = neo4j_mutation_fns;
+    }
 
     console.log(`insertMode: ${insertMode}`);
     if (insertMode) {
         // driver = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
         // neo4jsession = driver.session()
-
-
     }
 
+    
     const gedcomJson = JSON.stringify(gedcom);
     // console.log(gedcomJson);
     const gedcomObject: { [key: string]: any } = JSON.parse(gedcomJson);
@@ -32,7 +43,7 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
                     console.log(`type ${item.type} supported.`);
 
                     const fn = strategy[item.type];
-                    const id = await fn(item, recordsByType, insertMode);
+                    const id = await fn(item, recordsByType, insertMode, mutation_fns);
                 }
                 else {
                     console.log(`type ${item.type} not supported.`);
@@ -49,7 +60,9 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
 
                 if(index === 10) {
                     if (insertMode) {
-                        await indexCreation();
+                        // await indexCreation();
+                        const fn = mutation_fns['indexcreation'];
+                        await fn();
                     }
                 }
 
@@ -61,14 +74,16 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
 
     // on application exit:
     if (insertMode) {
-        await appCloseHandler();
-    }
+        // await appCloseHandler();
+        const fn = mutation_fns['close'];
+        await fn();
+}
 }
 
 const strategy: { [key: string]: any } = {
     'HEAD': (item: Parent) => header(item),
-    'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, recordsByType, insertMode),
-    'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, recordsByType, insertMode),
+    'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => individual(item, recordsByType, insertMode, mutation_fns),
+    'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => family(item, recordsByType, insertMode, mutation_fns),
     'REPO': (item: Parent) => repository(item),
     'SOUR': (item: Parent) => source(item),
     'TRLR': (item: Parent) => trailer(item),
@@ -91,7 +106,7 @@ function header(item: Parent) {
     console.log(`header()`);
 }
 
-async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) {
+async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
@@ -128,7 +143,9 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
         });
     }
     if (person && insertMode) {
-        const rv = await createPerson(person);
+        // const rv = await createPerson(person);
+        const fn = mutation_fns['createperson'];
+        const rv = await fn(person);
 
         await sleepytime();
     }
@@ -141,7 +158,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
 
 }
 
-async function family(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) {
+async function family(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
     console.log(`family()`);
     console.log(item);
 
@@ -179,9 +196,9 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
     }
 
     if (fam && insertMode) {
-        const rv = await createFamily(fam);
-        // const fn = strategy[''];
-        // const id = fn(fam);
+        // const rv = await createFamily(fam);
+        const fn = mutation_fns['createfamily'];
+        const rv = await fn(fam);
 
         await sleepytime();
     }

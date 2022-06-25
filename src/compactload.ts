@@ -14,6 +14,9 @@ if(RECORD_LIMIT) {
 // console.log(`process.env.INSERT_MODE: '${process.env.INSERT_MODE}'`);
 const insertMode = process.env.INSERT_MODE === 'true' ? true : false;
 
+// mutation mode
+const mutationMode = process.env.MUTATION_MODE === 'graphql' ? 'graphql' : 'neo4j';
+
 import * as Fs from "fs";
 import { toD3Force, parse, toDot, compact } from 'parse-gedcom';
 import { transform } from "./lib/astadapter.js";
@@ -49,7 +52,7 @@ type ExtKey = keyof typeof EXTENSION_TO_TYPE;
   } else {
     // process.stdout.write(output);
     
-    transform(parsed, insertMode, RECORD_LIMIT);
+    transform(parsed, mutationMode, insertMode, RECORD_LIMIT);
 
   }
 })();

@@ -29,6 +29,9 @@ type ExtKey = keyof typeof EXTENSION_TO_TYPE;
   const outfile = outputfile || '';
   const inputStr = Fs.readFileSync(infile, "utf8");
 
+  // mutation mode
+  const mutationMode = process.env.MUTATION_MODE === 'graphql' ? 'graphql' : 'neo4j';
+
   const parsed = parse(inputStr);
 
   let type = "json";
@@ -47,7 +50,7 @@ type ExtKey = keyof typeof EXTENSION_TO_TYPE;
   } else {
     // process.stdout.write(output);
 
-    transform(parsed, insertMode, RECORD_LIMIT);
+    transform(parsed, mutationMode, insertMode, RECORD_LIMIT);
 
   }
 })();
