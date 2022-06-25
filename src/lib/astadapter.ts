@@ -1,18 +1,8 @@
 
 import { Parent } from "unist";
 
-import { driver as neo4jdriver, auth as neo4jauth, Session, Driver } from 'neo4j-driver';
-
-const NEO4J_ENDPOINT = process.env.NEO4J_ENDPOINT || 'bolt://localhost';
-const NEO4J_USER = process.env.NEO4J_USER || 'neo4j';
-const NEO4J_PASS = process.env.NEO4J_PASS || '';
-
-let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
-
 export async function transform(gedcom: { [key: string]: any }, insertMode: boolean, recordLimit: number) {
     console.log(`transform()`);
-
-    let neo4jsession: Session | undefined;
 
     console.log(`insertMode: ${insertMode}`);
     if (insertMode) {
@@ -31,11 +21,6 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
     if (gedcomObject.type === 'root') {
         const rootnodes: Array<any> = gedcomObject?.children;
 
-        if (driver && !neo4jsession) {
-            // console.log('opening neo4jsession [top]');
-            // neo4jsession = driver.session();
-        }
-
         for (let index = 0; index < rootnodes.length; index++) {
             const item = rootnodes[index];
             if (index <= recordLimit) {
@@ -47,7 +32,7 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
                     console.log(`type ${item.type} supported.`);
 
                     const fn = strategy[item.type];
-                    const id = await fn(item, neo4jsession, recordsByType);
+                    const id = await fn(item, recordsByType, insertMode);
                 }
                 else {
                     console.log(`type ${item.type} not supported.`);
@@ -64,15 +49,11 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
 
                 if(index === 10) {
                     if (insertMode) {
-                        await indexCreation(driver, neo4jsession);
+                        await indexCreation();
                     }
                 }
 
             }
-        }
-        if (neo4jsession) {
-            // console.log('closing neo4jsession [top]');
-            // await neo4jsession.close();
         }
     }
 
@@ -80,14 +61,14 @@ export async function transform(gedcom: { [key: string]: any }, insertMode: bool
 
     // on application exit:
     if (insertMode) {
-        driver?.close();
+        await appCloseHandler();
     }
 }
 
-const strategy_neo4j: { [key: string]: any } = {
+const strategy: { [key: string]: any } = {
     'HEAD': (item: Parent) => header(item),
-    'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, neo4jsession, recordsByType, insertMode),
-    'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, neo4jsession, recordsByType, insertMode),
+    'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, recordsByType, insertMode),
+    'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, recordsByType, insertMode),
     'REPO': (item: Parent) => repository(item),
     'SOUR': (item: Parent) => source(item),
     'TRLR': (item: Parent) => trailer(item),
@@ -103,33 +84,14 @@ const strategy_neo4j: { [key: string]: any } = {
     'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
 }
 
-const strategy_graphql: { [key: string]: any } = {
-    // 'HEAD': (item: Parent) => header(item),
-    // 'INDI': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => individual(item, neo4jsession, recordsByType, insertMode),
-    // 'FAM': (item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) => family(item, neo4jsession, recordsByType, insertMode),
-    // 'REPO': (item: Parent) => repository(item),
-    // 'SOUR': (item: Parent) => source(item),
-    // 'TRLR': (item: Parent) => trailer(item),
-    // // subtypes
-    // 'SEX': (item: Parent) => gender(item),
-    // 'NAME': (item: Parent) => name(item),
-    // 'FAMS': (subitem: Parent, item: Parent) => familyspouse(subitem, item),
-    // 'BIRT': (item: Parent) => gender(item),
-    // 'DEAT': (item: Parent) => gender(item),
-    // 'PLAC': (item: Parent) => gender(item),
-    // 'HUSB': (subitem: Parent, item: Parent) => fam_husb(subitem, item),
-    // 'WIFE': (subitem: Parent, item: Parent) => fam_wife(subitem, item),
-    // 'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
-}
-
-const strategy = strategy_neo4j;
+// const strategy = strategy_neo4j;
 // const strategy = strategy_graphql;
 
 function header(item: Parent) {
     console.log(`header()`);
 }
 
-async function individual(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) {
+async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
@@ -166,14 +128,20 @@ async function individual(item: Parent, neo4jsession: Session, recordsByType: { 
         });
     }
     if (person && insertMode) {
-        const rv = await createPerson(driver, neo4jsession, person);
+        const rv = await createPerson(person);
 
         await sleepytime();
+    }
+    else {
+        console.log("skipping createPerson()");
+        // console.log("insertMode: ", insertMode);
+        // console.log("person: ", person);
+        // process.exit();
     }
 
 }
 
-async function family(item: Parent, neo4jsession: Session, recordsByType: { [key: string]: number }, insertMode: boolean) {
+async function family(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean) {
     console.log(`family()`);
     console.log(item);
 
@@ -211,9 +179,14 @@ async function family(item: Parent, neo4jsession: Session, recordsByType: { [key
     }
 
     if (fam && insertMode) {
-        const rv = await createFamily(driver, neo4jsession, fam);
+        const rv = await createFamily(fam);
+        // const fn = strategy[''];
+        // const id = fn(fam);
 
         await sleepytime();
+    }
+    else {
+        console.log("skipping createFamily()");
     }
 
 }
@@ -239,7 +212,7 @@ import { Data, Node } from 'unist';
 import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
-import { createFamily, createPerson, indexCreation, sleepytime } from "./neo4j-mutations.js";
+import { appCloseHandler, createFamily, createPerson, indexCreation, sleepytime } from "./neo4j-mutations.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);

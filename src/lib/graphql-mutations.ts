@@ -24,9 +24,9 @@ export async function createPerson(person: Person, role: string, jwt_token: stri
     if (person.residence_place) { params.residence_place = person.residence_place; }
 
     const query = gql`
-    mutation insert_single_Person($object: person_insert_input!) {
-        insert_person_one(object: $object) {
-            id
+    mutation insert_single_Person($object: kanaka_insert_input!) {
+        insert_kanaka_one(object: $object) {
+            kanaka_id
         }
     }
     `;
@@ -57,9 +57,9 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
     if (fam.husband) { params.husband = fam.husband; }
 
     const query = gql`
-    mutation insert_single_Person($object: person_insert_input!) {
-        insert_person_one(object: $object) {
-            id
+    mutation insert_single_Ohana($object: ohana_insert_input!) {
+        insert_ohana_one(object: $object) {
+            ohana_id
         }
     }
     `;
@@ -73,45 +73,43 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
 
     await gqlRequest(query, variables, jwt_token, addHeaders);
 
-    // relations / edges
+    // // relations / edges
 
-    if (fam.xref_id && fam.husband) {
-        famLinkParent(fam.xref_id, fam.husband, 'k');
-    }
-    else {
-        console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
-    }
+    // if (fam.xref_id && fam.husband) {
+    //     famLinkParent(fam.xref_id, fam.husband, 'k');
+    // }
+    // else {
+    //     console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
+    // }
 
-    if (fam.xref_id && fam.wife) {
-        famLinkParent(fam.xref_id, fam.wife, 'w');
-    }
-    else {
-        console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
-    }
+    // if (fam.xref_id && fam.wife) {
+    //     famLinkParent(fam.xref_id, fam.wife, 'w');
+    // }
+    // else {
+    //     console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
+    // }
 
-    if (fam.children) {
+    // if (fam.children) {
+    //     for (let index = 0; index < fam.children.length; index++) {
+    //         const c = fam.children[index];
 
-
-        for (let index = 0; index < fam.children.length; index++) {
-            const c = fam.children[index];
-
-            if (fam.xref_id && c.xref_id) {
-                famLinkChild(fam.xref_id, c.xref_id);
-            }
-            else {
-                console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
-            }
+    //         if (fam.xref_id && c.xref_id) {
+    //             famLinkChild(fam.xref_id, c.xref_id);
+    //         }
+    //         else {
+    //             console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
+    //         }
         
-            if (fam.xref_id && c.xref_id && fam.husband) {
-                // linkChildParentDirect(fam.husband, c.xref_id);
-            }
+    //         if (fam.xref_id && c.xref_id && fam.husband) {
+    //             // linkChildParentDirect(fam.husband, c.xref_id);
+    //         }
 
-            if (fam.xref_id && c.xref_id && fam.wife) {
-                // linkChildParentDirect(fam.wife, c.xref_id);
-            }
+    //         if (fam.xref_id && c.xref_id && fam.wife) {
+    //             // linkChildParentDirect(fam.wife, c.xref_id);
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
 }
 

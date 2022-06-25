@@ -1,10 +1,18 @@
+import { driver as neo4jdriver, auth as neo4jauth, Session, Driver, Node as Neo4jnode } from 'neo4j-driver';
 
-import { Driver, Session, Node as Neo4jnode } from 'neo4j-driver';
+const NEO4J_ENDPOINT = process.env.NEO4J_ENDPOINT || 'bolt://localhost';
+const NEO4J_USER = process.env.NEO4J_USER || 'neo4j';
+const NEO4J_PASS = process.env.NEO4J_PASS || '';
+
+let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
+
 import { Family } from '../models/Family.js';
 import { Person } from '../models/Person.js';
 
-export async function createPerson(driver: Driver | undefined, neo4jsession: Session, person: Person): Promise<Neo4jnode | undefined> {
+export async function createPerson(person: Person): Promise<Neo4jnode | undefined> {
     console.log("createPerson()");
+
+    let neo4jsession: Session | undefined;
     let node: Neo4jnode | undefined = undefined;
 
     try {
@@ -31,13 +39,13 @@ export async function createPerson(driver: Driver | undefined, neo4jsession: Ses
         // family_child: person.family_child,
         // family_spouse: person.family_spouse,
 
-        const result = await neo4jsession.run(
+        const result = await neo4jsession?.run(
             'CREATE (a:Person {' + Object.keys(params).map((x) => `${x}: $${x}`).join(', ') + '}) RETURN a',
             params
         );
 
-        const singleRecord = result.records[0];
-        let node = singleRecord.get(0);
+        const singleRecord = result?.records[0];
+        let node = singleRecord?.get(0);
 
         console.log(node.properties.name);
 
@@ -51,8 +59,9 @@ export async function createPerson(driver: Driver | undefined, neo4jsession: Ses
     return node;
 }
 
-export async function createFamily(driver: Driver | undefined, neo4jsession: Session, fam: Family): Promise<Neo4jnode | undefined> {
+export async function createFamily(fam: Family): Promise<Neo4jnode | undefined> {
     console.log("createFamily()");
+    let neo4jsession: Session | undefined;
     let node: Neo4jnode | undefined = undefined;
 
     try {
@@ -74,13 +83,13 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
         if (fam.wife) { params.wife = fam.wife; }
         if (fam.husband) { params.husband = fam.husband; }
 
-        const result = await neo4jsession.run(
+        const result = await neo4jsession?.run(
             'CREATE (a:Family {' + Object.keys(params).map((x) => `${x}: $${x}`).join(', ') + '}) RETURN a',
             params
         );
 
-        const singleRecord = result.records[0];
-        node = singleRecord.get(0);
+        const singleRecord = result?.records[0];
+        node = singleRecord?.get(0);
 
         console.log(node?.properties.name);
 
@@ -94,14 +103,14 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     // relations / edges
 
     if (fam.xref_id && fam.husband) {
-        famLinkParent(driver, neo4jsession, fam.xref_id, fam.husband, 'k');
+        famLinkParent(fam.xref_id, fam.husband, 'k');
     }
     else {
         console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
     }
 
     if (fam.xref_id && fam.wife) {
-        famLinkParent(driver, neo4jsession, fam.xref_id, fam.wife, 'w');
+        famLinkParent(fam.xref_id, fam.wife, 'w');
     }
     else {
         console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
@@ -114,7 +123,7 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
             const c = fam.children[index];
 
             if (fam.xref_id && c.xref_id) {
-                famLinkChild(driver, neo4jsession, fam.xref_id, c.xref_id);
+                famLinkChild(fam.xref_id, c.xref_id);
             }
             else {
                 console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
@@ -134,8 +143,12 @@ export async function createFamily(driver: Driver | undefined, neo4jsession: Ses
     return node;
 }
 
-export async function famLinkParent(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string, ptype: string) {
+export async function famLinkParent(fam_id: string, person_id: string, ptype: string) {
     console.log(`famLinkParent() ${fam_id} ${person_id} ${ptype}`);
+
+    let neo4jsession: Session | undefined;
+    let node: Neo4jnode | undefined = undefined;
+
     const rel = ptype.toUpperCase(); // K W
 
     try {
@@ -145,7 +158,7 @@ export async function famLinkParent(driver: Driver | undefined, neo4jsession: Se
             neo4jsession = driver.session();
         }
 
-        const result = await neo4jsession.run(
+        const result = await neo4jsession?.run(
             `
 MATCH (f:Family {xref_id: '${fam_id}'})
 MATCH (p:Person {xref_id: '${person_id}'})
@@ -166,8 +179,11 @@ CREATE (p)-[rel:${rel}]->(f)
 
 }
 
-export async function famLinkChild(driver: Driver | undefined, neo4jsession: Session, fam_id: string, person_id: string) {
+export async function famLinkChild(fam_id: string, person_id: string) {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
+    let neo4jsession: Session | undefined;
+    let node: Neo4jnode | undefined = undefined;
+
     try {
 
         if (driver) {
@@ -175,7 +191,7 @@ export async function famLinkChild(driver: Driver | undefined, neo4jsession: Ses
             neo4jsession = driver.session();
         }
 
-        const result = await neo4jsession.run(
+        const result = await neo4jsession?.run(
             `
 MATCH (f:Family {xref_id: '${fam_id}'})
 MATCH (p:Person {xref_id: '${person_id}'})
@@ -198,8 +214,14 @@ CREATE (f)-[rel:CHILD]->(p)
     // MATCH path=(p:Person)-[:child]->(par)
 }
 
-export async function linkPersons(session: Session, name1: string, rel: string, name2: string) {
-    const result = await session.run(
+export async function linkPersons(name1: string, rel: string, name2: string) {
+    let neo4jsession: Session | undefined;
+    if (driver) {
+        console.log('opening neo4jsession [famLinkChild]');
+        neo4jsession = driver.session();
+    }
+
+    const result = await neo4jsession?.run(
         `
 MATCH (n1:Person {name: '${name1}'})
 MATCH (n2:Person {name: '${name2}'})
@@ -211,8 +233,10 @@ CREATE (n1)-[rel:${rel}]->(n2)
     console.log(result);
 }
 
-export async function linkChildParentDirect(driver: Driver | undefined, neo4jsession: Session, parentId: string, childId: string) {
+export async function linkChildParentDirect(parentId: string, childId: string) {
     console.log(`linkChildParentDirect() ${parentId} ${childId}`);
+    let neo4jsession: Session | undefined;
+
     try {
 
         if (driver) {
@@ -233,7 +257,7 @@ export async function linkChildParentDirect(driver: Driver | undefined, neo4jses
         // https://github.com/neo4j/neo4j/issues/6248
         // https://neo4j.com/docs/java-reference/current/transaction-management/#transactions-deadlocks
         // creating indexes seems to help
-        const result = await neo4jsession.run(
+        const result = await neo4jsession?.run(
             mutation,
             {}
             // { childId: childId, parentId: parentId } // not used?
@@ -252,8 +276,10 @@ export async function linkChildParentDirect(driver: Driver | undefined, neo4jses
 
 }
 
-export async function indexCreation(driver: Driver | undefined, neo4jsession: Session | undefined) {
+export async function indexCreation() {
     console.log(`indexCreation()`);
+    let neo4jsession: Session | undefined;
+
     try {
 
         if (driver) {
@@ -303,4 +329,8 @@ export async function sleepytime() {
         }
         , sleeptime
     );
+}
+
+export function appCloseHandler() {
+    driver?.close();
 }

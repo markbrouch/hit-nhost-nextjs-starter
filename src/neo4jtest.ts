@@ -12,10 +12,10 @@ const session = driver.session()
 
 try {
 
-    const alice = await createPerson(driver, session, new Person({name: 'Alice'}));
-    const lopaka = await createPerson(driver, session, new Person({name: 'Lopaka'}));
+    const alice = await createPerson(new Person({name: 'Alice'}));
+    const lopaka = await createPerson(new Person({name: 'Lopaka'}));
 
-    await linkPersons(session, alice?.properties.name, 'follows', lopaka?.properties.name);
+    await linkPersons(alice?.properties.name, 'follows', lopaka?.properties.name);
 
 } finally {
     await session.close()
