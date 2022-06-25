@@ -142,8 +142,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
 
         });
     }
-    if (false) {
-    // if (person && insertMode) {
+    if (person && insertMode) {
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
         const [ role, token ] = ['public', '']; // dummy

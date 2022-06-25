@@ -61,13 +61,18 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
     // if (fam.husband) { params.kane_id = fam.husband; }
 
     const makuakane_kanaka = await get_kanaka_by_xrefid(fam.husband, role, jwt_token);
-    const makuahine_kanaka = await get_kanaka_by_xrefid(fam.wife, role, jwt_token);
     console.log("makuakane_kanaka : ", makuakane_kanaka);
+    if (makuakane_kanaka.kanaka.length > 0 && makuakane_kanaka?.kanaka[0].kanaka_id ) {
+        // first only
+        params.kane_id = makuakane_kanaka?.kanaka[0].kanaka_id;
+    }
+
+    const makuahine_kanaka = await get_kanaka_by_xrefid(fam.wife, role, jwt_token);
     console.log("makuahine_kanaka : ", makuahine_kanaka);
-    const makuakane_kanaka_id = makuakane_kanaka?.kanaka[0].kanaka_id; // first only
-    const makuahine_kanaka_id = makuahine_kanaka?.kanaka[0].kanaka_id; // first only
-    if (makuakane_kanaka_id) { params.kane_id = makuakane_kanaka_id; }
-    if (makuahine_kanaka_id) { params.wahine_id = makuahine_kanaka_id; }
+    if (makuahine_kanaka.kanaka.length > 0 && makuahine_kanaka?.kanaka[0].kanaka_id ) {
+        // first only
+        params.wahine_id = makuakane_kanaka?.kanaka[0].kanaka_id;
+    }
 
     const query = gql`
     mutation insert_single_Ohana($object: ohana_insert_input!) {
@@ -130,9 +135,15 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
             if (fam.xref_id && c.xref_id) {
                 const kamalii = await get_kanaka_by_xrefid(c.xref_id, role, jwt_token); 
                 console.log("kamalii: ", kamalii);
-                const kid = kamalii?.kanaka_id;
-                console.log("kid: ", kid);
-                const crv = await famLinkChild(ohana_id, kid, role, jwt_token);
+                if(kamalii.kanaka.length > 0) {
+                    // first
+                    const kid = kamalii.kanaka[0]?.kanaka_id;
+                    console.log("kid: ", kid);
+                    const crv = await famLinkChild(ohana_id, kid, role, jwt_token);
+                }
+                else {
+                    console.log("kamalii not linked to kanaka record - not normal");
+                }
             }
             else {
                 console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
@@ -321,7 +332,7 @@ export async function get_kanaka_by_xrefid(xref_id: string|undefined, role: stri
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function famLinkChild(fam_id: string|undefined, person_id: string, role: string, jwt_token: string) {
+export async function famLinkChild(fam_id: string|undefined, person_id: string, role: string, jwt_token: string) : Promise<number|undefined> {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
     let kamalii_id: number|undefined;
     try {
@@ -330,36 +341,41 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
         // lookup kanaka_id from person_id|xref_id
         const kanakamatches = await get_kanaka_by_xrefid(person_id, role, jwt_token);
         console.log("kanakamatches: ", kanakamatches);
-        const kanaka = kanakamatches[0];
-        console.log("kanaka: ", kanaka);
+        if(kanakamatches.length > 0) {
+            const kanaka = kanakamatches[0];
+            console.log("kanaka: ", kanaka);
 
-        const query = gql`
-        mutation insert_single_Child($object: kamalii_insert_input!) {
-            insert_kamalii_one(object: $object) {
-                kamalii_id
-                kanaka_id
-                ohana_id
-                sex
-                xref_id
+            const query = gql`
+            mutation insert_single_Child($object: kamalii_insert_input!) {
+                insert_kamalii_one(object: $object) {
+                    kamalii_id
+                    kanaka_id
+                    ohana_id
+                    sex
+                    xref_id
+                }
             }
+            `;
+            const variables = {
+                object: {
+                    kanaka_id: person_id,
+                    ohana_id: fam_id,
+                    owner_id: null,
+                    sex: kanaka?.sex,
+                    // xref_id: null,
+                }
+            };
+        
+            let addHeaders = {
+                "x-hasura-role": role
+            };
+        
+            kamalii_id = await gqlRequest(query, variables, jwt_token, addHeaders);
         }
-        `;
-        const variables = {
-            object: {
-                kanaka_id: person_id,
-                ohana_id: fam_id,
-                owner_id: null,
-                sex: kanaka?.sex,
-                // xref_id: null,
-            }
-        };
-    
-        let addHeaders = {
-            "x-hasura-role": role
-        };
-    
-        kamalii_id = await gqlRequest(query, variables, jwt_token, addHeaders);
-
+        else {
+            console.log(`no matches for kanaka by person xrefid '${person_id}'`);
+        }
+        
     } finally {
         await sleepytime();
     }
