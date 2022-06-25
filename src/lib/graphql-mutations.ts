@@ -5,9 +5,9 @@ import { Person } from '../models/Person.js';
 export async function createPerson(person: Person, role: string, jwt_token: string) {
     console.log("createPerson()");
 
-    if (!jwt_token) {
-        return;
-    }
+    // if (!jwt_token) {
+    //     return;
+    // }
 
     let params: { [key: string]: any } = {
         name: person.name,
@@ -27,6 +27,8 @@ export async function createPerson(person: Person, role: string, jwt_token: stri
     mutation insert_single_Person($object: kanaka_insert_input!) {
         insert_kanaka_one(object: $object) {
             kanaka_id
+            name
+            xref_id
         }
     }
     `;
@@ -44,9 +46,9 @@ export async function createPerson(person: Person, role: string, jwt_token: stri
 export async function createFamily(fam: Family, role: string, jwt_token: string) {
     console.log("createFamily()");
 
-    if (!jwt_token) {
-        return;
-    }
+    // if (!jwt_token) {
+    //     return;
+    // }
 
     let params: { [key: string]: any } = {
         xref_id: fam.xref_id,
@@ -60,6 +62,7 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
     mutation insert_single_Ohana($object: ohana_insert_input!) {
         insert_ohana_one(object: $object) {
             ohana_id
+            xref_id
         }
     }
     `;
@@ -74,13 +77,13 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
     await gqlRequest(query, variables, jwt_token, addHeaders);
 
     // // relations / edges
-
-    // if (fam.xref_id && fam.husband) {
-    //     famLinkParent(fam.xref_id, fam.husband, 'k');
-    // }
-    // else {
-    //     console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
-    // }
+ 
+    if (fam.xref_id && fam.husband) {
+        famLinkParent(fam.xref_id, fam.husband, 'k');
+    }
+    else {
+        console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
+    }
 
     // if (fam.xref_id && fam.wife) {
     //     famLinkParent(fam.xref_id, fam.wife, 'w');
@@ -113,10 +116,11 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
 
 }
 
-export async function famLinkParent(fam_id: string, person_id: string, ptype: string) {
+export async function famLinkParent(fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) {
     console.log(`famLinkParent() ${fam_id} ${person_id} ${ptype}`);
-//     const rel = ptype.toUpperCase(); // K W
+    const rel = ptype.toUpperCase(); // K | W
 
+    
 //     try {
 
 //         const result = await neo4jsession.run(
@@ -140,36 +144,76 @@ export async function famLinkParent(fam_id: string, person_id: string, ptype: st
 
 }
 
-export async function famLinkChild(fam_id: string, person_id: string) {
+export async function get_ohana() {
+    console.log("get_ohana()");
+
+    const query = gql`
+    query PublisherClientsAll {
+        leadjam_publisherclient(order_by: {publisher_name: asc}) {
+            pc_id
+            publisher_name
+            publisher_code
+            create_timestamp
+        }
+    }
+    `;
+    const variables = {};
+
+    return await gqlRequest(query, variables);
+}
+
+export async function famLinkChild(fam_id: string, person_id: string, role: string, jwt_token: string) {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
-//     try {
+    let kamalii_id: number|undefined;
+    try {
 
-//         if (driver) {
-//             console.log('opening neo4jsession [famLinkChild]');
-//             neo4jsession = driver.session();
-//         }
+        // lookup ohana_id from fam_id|xref_id
+        // lookup kanaka_id from person_id|xref_id
 
-//         const result = await neo4jsession.run(
-//             `
-// MATCH (f:Family {xref_id: '${fam_id}'})
-// MATCH (p:Person {xref_id: '${person_id}'})
-// CREATE (f)-[rel:CHILD]->(p)
-//             `,
-//             {}
-//             // { fam_id: fam_id, person_id: person_id } // not used?
-//         );
+        const query = gql`
+        mutation insert_single_Child($object: kamalii_insert_input!) {
+            insert_kamalii_one(object: $object) {
+                kamalii_id
+                kanaka_id
+                ohana_id
+                sex
+                xref_id
+            }
+        }
+        `;
+        const variables = {
+            object: {
+                kanaka_id: ,
+                ohana_id integer NOT NULL,
+                owner_id uuid NULL, -- nhost user_id
+                xref_id text,
+                source_uid text,
+                        },
+        };
+    
+        let addHeaders = {
+            "x-hasura-role": role
+        };
+    
+        kamalii_id = await gqlRequest(query, variables, jwt_token, addHeaders);
+    
 
-//         // console.log(result);
-//     } finally {
-//         if (neo4jsession) {
-//             console.log('closing neo4jsession [famLinkChild]');
-//             neo4jsession.close();
-//         }
-//         await sleepytime();
-//     }
+        const result = await neo4jsession.run(
+            `
+MATCH (f:Family {xref_id: '${fam_id}'})
+MATCH (p:Person {xref_id: '${person_id}'})
+CREATE (f)-[rel:CHILD]->(p)
+            `,
+            {}
+            // { fam_id: fam_id, person_id: person_id } // not used?
+        );
 
+        // console.log(result);
+    } finally {
+        await sleepytime();
+    }
 
-//     // MATCH path=(p:Person)-[:child]->(par)
+    return kamalii_id;
 }
 
 export async function linkPersons(name1: string, rel: string, name2: string) {
@@ -248,5 +292,6 @@ export const mutation_fns: { [key: string]: Function } = {
     'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
+    'indexcreation': () => console.log('no op'),
     'close': () => appCloseHandler(),
 }

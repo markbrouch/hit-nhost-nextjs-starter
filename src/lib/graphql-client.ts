@@ -1,7 +1,7 @@
 
 import { gql, GraphQLClient } from 'graphql-request';
 
-const graphqlClient = new GraphQLClient(process.env.NHOST_BACKEND_URL || '');
+const graphqlClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT || '');
 
 async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_token: string, addHeaders: { [key: string]: string }) {
     let gqlRequestHeaders: { [key: string]: string } = {
@@ -24,6 +24,7 @@ async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_
 	const client = graphqlClient;
 
 	// console.log("client.url: ", client.url);
+	console.log("process.env.GRAPHQL_ENDPOINT: ", process.env.GRAPHQL_ENDPOINT);
 
 	return await client.request(query, variables, gqlRequestHeaders);
 }

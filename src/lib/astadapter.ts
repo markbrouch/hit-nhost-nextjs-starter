@@ -145,7 +145,8 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
     if (person && insertMode) {
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
-        const rv = await fn(person);
+        const [ role, token ] = ['public', '']; // dummy
+        const rv = await fn(person, role, token);
 
         await sleepytime();
     }
@@ -198,7 +199,8 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
     if (fam && insertMode) {
         // const rv = await createFamily(fam);
         const fn = mutation_fns['createfamily'];
-        const rv = await fn(fam);
+        const [ role, token ] = ['public', '']; // dummy
+        const rv = await fn(fam, role, token);
 
         await sleepytime();
     }

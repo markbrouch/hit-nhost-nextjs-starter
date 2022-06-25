@@ -5,7 +5,7 @@ CREATE TABLE public.kanaka (
     name text,
     formal_name text,
     xref_id text,
-    sex character varying(2),
+    sex character varying(1), -- K|W or M|F
     _uid text,
     name_surname text,
     name_aka text,
@@ -30,4 +30,8 @@ CREATE SEQUENCE public.kanaka_id_seq
     NO MAXVALUE
     CACHE 1;
 
+ALTER TABLE ONLY public.kanaka
+    ADD CONSTRAINT kanaka_pk PRIMARY KEY (kanaka_id);
+
 ALTER TABLE ONLY public.kanaka ALTER COLUMN kanaka_id SET DEFAULT nextval('public.kanaka_id_seq'::regclass);
+
