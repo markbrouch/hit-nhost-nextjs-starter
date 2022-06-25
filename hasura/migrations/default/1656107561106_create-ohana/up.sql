@@ -41,8 +41,8 @@ ALTER TABLE ONLY public.ohana
 ALTER TABLE ONLY public.ohana
     ADD CONSTRAINT ohana_wahineid_fk FOREIGN KEY (wahine_id) REFERENCES public.kanaka(kanaka_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-CREATE UNIQUE INDEX ohana_kaneid_idx ON public.ohana (kane_id);
-CREATE UNIQUE INDEX ohana_wahineid_idx ON public.ohana (wahine_id);
+CREATE INDEX ohana_kaneid_idx ON public.ohana (kane_id);
+CREATE INDEX ohana_wahineid_idx ON public.ohana (wahine_id);
 
 
 CREATE TABLE public.kamalii (
