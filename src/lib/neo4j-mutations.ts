@@ -338,7 +338,8 @@ export function appCloseHandler() {
 export const mutation_fns: { [key: string]: Function } = {
     'createperson': (person: Person) => createPerson(person),
     'createfamily': (fam: Family) => createFamily(fam),
-    'linkfamparent': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, ptype),
+    // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'k'),
+    // 'linkfamwife': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'w'),
     'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),

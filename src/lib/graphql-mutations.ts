@@ -74,92 +74,223 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
         "x-hasura-role": role
     };
 
-    await gqlRequest(query, variables, jwt_token, addHeaders);
+    const resultCreateOhana = await gqlRequest(query, variables, jwt_token, addHeaders);
+    const ohana_id = resultCreateOhana?.data?.get_ohana_by_pk.ohana_id;
+    const makuakane_kanaka= await get_kanaka_by_xrefid(params.husband, role, jwt_token);
+    const makuahine_kanaka = await get_kanaka_by_xrefid(params.wife, role, jwt_token);
+    const makuakane_kanaka_id = makuakane_kanaka?.kanaka_id;
+    const makuahine_kanaka_id = makuahine_kanaka?.kanaka_id;
 
     // // relations / edges
  
     if (fam.xref_id && fam.husband) {
-        famLinkParent(fam.xref_id, fam.husband, 'k');
+        const makuakane = await famLinkHusband(ohana_id, makuakane_kanaka_id, role, jwt_token);
     }
     else {
         console.log(`no famLinkParent husband for ${fam.xref_id}, ${fam.husband}`);
     }
 
-    // if (fam.xref_id && fam.wife) {
-    //     famLinkParent(fam.xref_id, fam.wife, 'w');
-    // }
-    // else {
-    //     console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
-    // }
+    if (fam.xref_id && fam.wife) {
+        const makuahine = await famLinkWife(ohana_id, makuahine_kanaka_id, role, jwt_token);
+    }
+    else {
+        console.log(`no famLinkParent wife for ${fam.xref_id}, ${fam.wife}`);
+    }
 
-    // if (fam.children) {
-    //     for (let index = 0; index < fam.children.length; index++) {
-    //         const c = fam.children[index];
+    if (fam.children) {
+        for (let index = 0; index < fam.children.length; index++) {
+            const c = fam.children[index];
 
-    //         if (fam.xref_id && c.xref_id) {
-    //             famLinkChild(fam.xref_id, c.xref_id);
-    //         }
-    //         else {
-    //             console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
-    //         }
+            if (fam.xref_id && c.xref_id) {
+                const kamalii = await get_kanaka_by_xrefid(c.xref_id, role, jwt_token); 
+                const kid = kamalii?.kanaka_id;
+                const crv = await famLinkChild(ohana_id, kid, role, jwt_token);
+            }
+            else {
+                console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
+            }
         
-    //         if (fam.xref_id && c.xref_id && fam.husband) {
-    //             // linkChildParentDirect(fam.husband, c.xref_id);
-    //         }
+            if (fam.xref_id && c.xref_id && fam.husband) {
+                // linkChildParentDirect(fam.husband, c.xref_id);
+            }
 
-    //         if (fam.xref_id && c.xref_id && fam.wife) {
-    //             // linkChildParentDirect(fam.wife, c.xref_id);
-    //         }
+            if (fam.xref_id && c.xref_id && fam.wife) {
+                // linkChildParentDirect(fam.wife, c.xref_id);
+            }
 
-    //     }
-    // }
-
-}
-
-export async function famLinkParent(fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) {
-    console.log(`famLinkParent() ${fam_id} ${person_id} ${ptype}`);
-    const rel = ptype.toUpperCase(); // K | W
-
-    
-//     try {
-
-//         const result = await neo4jsession.run(
-//             `
-// MATCH (f:Family {xref_id: '${fam_id}'})
-// MATCH (p:Person {xref_id: '${person_id}'})
-// CREATE (p)-[rel:${rel}]->(f)
-//             `,
-//             {}
-//             // { fam_id: fam_id, person_id: person_id } // not used?
-//         );
-
-//         // console.log(result);
-//     } finally {
-//         if (neo4jsession) {
-//             console.log('closing neo4jsession [family_relations]');
-//             neo4jsession.close();
-//         }
-//         await sleepytime();
-//     }
+        }
+    }
 
 }
 
-export async function get_ohana() {
-    console.log("get_ohana()");
+export async function famLinkHusband(fam_id: string, person_id: string, role: string, jwt_token: string) {
+    console.log(`famLinkHusband() ${fam_id} ${person_id}`);
+    // const rel = ptype.toUpperCase(); // K | W
+
+    // update mutation
+    // update ohana set kane_id = x where ohana_id = y
 
     const query = gql`
-    query PublisherClientsAll {
-        leadjam_publisherclient(order_by: {publisher_name: asc}) {
-            pc_id
-            publisher_name
-            publisher_code
-            create_timestamp
+    mutation update_ohana_kane_by_pk($ohana_id: Int!, $kane_id: Int!) {
+        update_ohana_by_pk(pk_columns: {ohana_id: $ohana_id}, _set: {kane_id: $kane_id}) {
+            ohana_id
+            kane_id
         }
     }
     `;
-    const variables = {};
+    const variables = {
+        ohana_id: fam_id,
+        kane_id: person_id,
+    };
 
-    return await gqlRequest(query, variables);
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+export async function famLinkWife(fam_id: string, person_id: string, role: string, jwt_token: string) {
+    console.log(`famLinkWife() ${fam_id} ${person_id}`);
+    // const rel = ptype.toUpperCase(); // K | W
+
+    // update mutation
+    // update ohana set kane_id = x where ohana_id = y
+
+    const query = gql`
+    mutation update_ohana_kane_by_pk($ohana_id: Int!, $wahine_id: Int!) {
+        update_ohana_by_pk(pk_columns: {ohana_id: $ohana_id}, _set: {wahine_id: $wahine_id}) {
+            ohana_id
+            wahine_id
+        }
+    }
+    `;
+    const variables = {
+        ohana_id: fam_id,
+        wahine_id: person_id,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+export async function get_ohana_by_pk(ohana_id: number, role: string, jwt_token: string) {
+    console.log("get_ohana_by_pk()");
+
+    const query = gql`
+    query get_ohana_by_pk($ohana_id:Int!) {
+        ohana_by_pk(ohana_id: $ohana_id) {
+          birth_place
+          burial_place
+          change_date
+          create_timestamp
+          formal_name
+          kane_id
+          marriage_date
+          marriage_date_dt
+          ohana_id
+          marriage_place
+          owner_id
+          residence
+          residence_place
+          source_uid
+          wahine_id
+          xref_id
+        }
+      }
+    `;
+    const variables = {
+        ohana_id: ohana_id,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+export async function get_kanaka_by_pk(kanaka_id: number, role: string, jwt_token: string) {
+    console.log("get_kanaka_by_pk()");
+
+    const query = gql`
+    query get_kanaka_by_pk($kanaka_id:Int!) {
+        kanaka_by_pk(kanaka_id: $kanaka_id) {
+          kanaka_id
+          _uid
+          birth_date
+          birth_date_dt
+          birth_place
+          burial_place
+          change_date
+          family_child
+          create_timestamp
+          family_spouse
+          formal_name
+          name
+          name_aka
+          name_surname
+          owner_id
+          residence_place
+          residence
+          sex
+          source_uid
+          xref_id
+        }
+      }
+    `;
+    const variables = {
+        kanaka_id: kanaka_id,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+export async function get_kanaka_by_xrefid(xref_id: string, role: string, jwt_token: string) : Promise<any> {
+    console.log("get_kanaka_by_xrefid()");
+
+    const query = gql`
+    query get_kanaka_by_xrefid($xref_id:String!) {
+        kanaka(where: {xref_id: {_eq: $xref_id}}) {
+            kanaka_id
+            _uid
+            birth_date
+            birth_date_dt
+            birth_place
+            burial_place
+            change_date
+            family_child
+            create_timestamp
+            family_spouse
+            formal_name
+            name
+            name_aka
+            name_surname
+            owner_id
+            residence_place
+            residence
+            sex
+            source_uid
+            xref_id
+          }
+    }
+    `;
+    const variables = {
+        xref_id: xref_id,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
 export async function famLinkChild(fam_id: string, person_id: string, role: string, jwt_token: string) {
@@ -169,6 +300,8 @@ export async function famLinkChild(fam_id: string, person_id: string, role: stri
 
         // lookup ohana_id from fam_id|xref_id
         // lookup kanaka_id from person_id|xref_id
+        const kanakamatches = await get_kanaka_by_xrefid(person_id, role, jwt_token);
+        const kanaka = kanakamatches[0];
 
         const query = gql`
         mutation insert_single_Child($object: kamalii_insert_input!) {
@@ -183,12 +316,12 @@ export async function famLinkChild(fam_id: string, person_id: string, role: stri
         `;
         const variables = {
             object: {
-                kanaka_id: ,
-                ohana_id integer NOT NULL,
-                owner_id uuid NULL, -- nhost user_id
-                xref_id text,
-                source_uid text,
-                        },
+                kanaka_id: person_id,
+                ohana_id: fam_id,
+                owner_id: null,
+                sex: kanaka?.sex,
+                // xref_id: null,
+            }
         };
     
         let addHeaders = {
@@ -196,19 +329,7 @@ export async function famLinkChild(fam_id: string, person_id: string, role: stri
         };
     
         kamalii_id = await gqlRequest(query, variables, jwt_token, addHeaders);
-    
 
-        const result = await neo4jsession.run(
-            `
-MATCH (f:Family {xref_id: '${fam_id}'})
-MATCH (p:Person {xref_id: '${person_id}'})
-CREATE (f)-[rel:CHILD]->(p)
-            `,
-            {}
-            // { fam_id: fam_id, person_id: person_id } // not used?
-        );
-
-        // console.log(result);
     } finally {
         await sleepytime();
     }
@@ -288,8 +409,10 @@ export function appCloseHandler() {
 export const mutation_fns: { [key: string]: Function } = {
     'createperson': (person: Person, role: string, jwt_token: string) => createPerson(person, role, jwt_token),
     'createfamily': (fam: Family, role: string, jwt_token: string) => createFamily(fam, role, jwt_token),
-    'linkfamparent': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, ptype),
-    'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),
+    // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
+    // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
+    // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),
+    'linkfamchild': (fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(fam_id, person_id, role, jwt_token),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
     'indexcreation': () => console.log('no op'),
