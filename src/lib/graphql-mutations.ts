@@ -329,7 +329,9 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
         // lookup ohana_id from fam_id|xref_id
         // lookup kanaka_id from person_id|xref_id
         const kanakamatches = await get_kanaka_by_xrefid(person_id, role, jwt_token);
+        console.log("kanakamatches: ", kanakamatches);
         const kanaka = kanakamatches[0];
+        console.log("kanaka: ", kanaka);
 
         const query = gql`
         mutation insert_single_Child($object: kamalii_insert_input!) {
