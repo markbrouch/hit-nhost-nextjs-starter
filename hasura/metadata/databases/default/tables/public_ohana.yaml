@@ -2,12 +2,20 @@ table:
   schema: public
   name: ohana
 object_relationships:
-  - name: kanaka
+  - name: kanakakane
     using:
       foreign_key_constraint_on: kane_id
-  - name: kanakaByWahineId
+  - name: kanakawahine
     using:
       foreign_key_constraint_on: wahine_id
+array_relationships:
+  - name: nakamalii
+    using:
+      foreign_key_constraint_on:
+        column: ohana_id
+        table:
+          schema: public
+          name: kamalii
 insert_permissions:
   - role: public
     permission:
