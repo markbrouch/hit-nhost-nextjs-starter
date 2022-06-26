@@ -69,7 +69,7 @@ ALTER TABLE ONLY public.kamalii ALTER COLUMN kamalii_id SET DEFAULT nextval('pub
 ALTER TABLE ONLY public.kamalii
     ADD CONSTRAINT kamalii_pk PRIMARY KEY (kamalii_id);
 
-CREATE UNIQUE INDEX kamalii_kanakaid_idx ON public.kamalii (kanaka_id);
+CREATE INDEX kamalii_kanakaid_idx ON public.kamalii (kanaka_id);
 
 ALTER TABLE ONLY public.kamalii
     ADD CONSTRAINT kamalii_ohanaid_fk FOREIGN KEY (ohana_id) REFERENCES public.ohana(ohana_id) ON UPDATE CASCADE ON DELETE CASCADE;
