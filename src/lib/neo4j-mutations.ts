@@ -345,4 +345,5 @@ export const mutation_fns: { [key: string]: Function } = {
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
     'indexcreation': () => indexCreation(),
     'close': () => appCloseHandler(),
+    'sleepytime': () => sleepytime(),
 }

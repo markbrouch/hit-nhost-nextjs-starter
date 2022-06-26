@@ -142,13 +142,15 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
 
         });
     }
-    if (person && insertMode) {
+
+    const DISABLE_PERSON_DEBUG = false; // temp
+    if (person && insertMode && !DISABLE_PERSON_DEBUG) {
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
         const [ role, token ] = ['public', '']; // dummy
         const rv = await fn(person, role, token);
 
-        await sleepytime();
+        await mutation_fns['sleepytime']();
     }
     else {
         console.log("skipping createPerson()");
@@ -202,7 +204,7 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
         const [ role, token ] = ['public', '']; // dummy
         const rv = await fn(fam, role, token);
 
-        await sleepytime();
+        await mutation_fns['sleepytime']();
     }
     else {
         console.log("skipping createFamily()");
@@ -231,7 +233,6 @@ import { Data, Node } from 'unist';
 import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
-import { appCloseHandler, createFamily, createPerson, indexCreation, sleepytime } from "./neo4j-mutations.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
