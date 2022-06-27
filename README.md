@@ -35,6 +35,67 @@ MATCH path=(p:Person {birth_place:'the Ololo Genealogy'})-->()
 RETURN path
 ```
 
+# Hasura / graphql examples
+
+## query filter 
+
+query kanakaSpecificBirthplace {
+  kanaka(where: {birth_place: {_eq: "the Ololo Genealogy"}}) {
+    kanaka_id
+    name
+    formal_name
+    birth_place
+    birth_date
+    change_date
+    makuakane {
+      ohana_id
+      nakamalii {
+        kamalii_id
+        kanaka {
+          kanaka_id
+          name
+          xref_id
+        }
+        kanaka_id
+      }
+    }
+    makuahine {
+      ohana_id
+      nakamalii {
+        kamalii_id
+        kanaka {
+          kanaka_id
+          name
+          xref_id
+        }
+        ohana {
+          ohana_id
+          kanakakane {
+            kanaka_id
+            name
+          }
+          kanakawahine {
+            kanaka_id
+            name
+          }
+          xref_id
+        }
+      }
+    }
+    kamalii {
+      kanaka_id
+      kamalii_id
+      ohana_id
+      kanaka {
+        kanaka_id
+        name
+        sex
+        xref_id
+      }
+    }
+  }
+}
+
 ## delete all nodes and relations
 
 if testing loads and wanting to delete all...

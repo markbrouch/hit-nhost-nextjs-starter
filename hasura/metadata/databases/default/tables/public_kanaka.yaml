@@ -1,17 +1,14 @@
 table:
   schema: public
   name: kanaka
-object_relationships:
-  - name: iskamalii
+array_relationships:
+  - name: kamalii
     using:
-      manual_configuration:
-        remote_table:
+      foreign_key_constraint_on:
+        column: kanaka_id
+        table:
           schema: public
           name: kamalii
-        insertion_order: null
-        column_mapping:
-          kanaka_id: kanaka_id
-array_relationships:
   - name: makuahine
     using:
       foreign_key_constraint_on:
