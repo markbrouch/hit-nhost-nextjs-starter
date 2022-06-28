@@ -35,6 +35,15 @@ MATCH path=(p:Person {birth_place:'the Ololo Genealogy'})-->()
 RETURN path
 ```
 
+## delete all nodes and relations
+
+if testing loads and wanting to delete all...
+
+```
+MATCH (n)
+DETACH DELETE n
+```
+
 # Hasura / graphql examples
 
 ## query filter 
@@ -96,12 +105,29 @@ query kanakaSpecificBirthplace {
   }
 }
 
-## delete all nodes and relations
+## Hasura mutations and metadata
 
-if testing loads and wanting to delete all...
+creating new database schema, by applying all migrations 
 
 ```
-MATCH (n)
-DETACH DELETE n
+cd ./hasura
+hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default status
+hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply
+```
+
+apply only 2 migrations 
+```
+hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply --up 2
+```
+
+rollback 2 migrations 
+```
+hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply --down 2
+```
+
+apply metadata from files to hasura instance (after viewing diff)
+```
+hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret diff
+hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
 ```
 
