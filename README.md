@@ -48,6 +48,7 @@ DETACH DELETE n
 
 ## query filter 
 
+```
 query kanakaSpecificBirthplace {
   kanaka(where: {birth_place: {_eq: "the Ololo Genealogy"}}) {
     kanaka_id
@@ -104,6 +105,7 @@ query kanakaSpecificBirthplace {
     }
   }
 }
+```
 
 ## Hasura mutations and metadata
 
@@ -130,4 +132,9 @@ apply metadata from files to hasura instance (after viewing diff)
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret diff
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
 ```
+
+# system architecture
+
+![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
+
 
