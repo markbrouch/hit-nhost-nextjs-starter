@@ -107,6 +107,21 @@ query kanakaSpecificBirthplace {
 }
 ```
 
+
+## Hasura + postgresql on docker 
+
+https://hasura.io/docs/latest/graphql/core/deployment/deployment-guides/docker/
+
+quickstart:
+```
+cd ./hasura-docker
+{edit docker-compose.yml}
+docker-compose up -d
+docker ps
+```
+
+Then you can connect to localhost:port for the Hasura endpoint as well as the postgresql you configured. 
+
 ## Hasura mutations and metadata
 
 creating new database schema, by applying all migrations 
