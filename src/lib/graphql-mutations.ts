@@ -130,7 +130,6 @@ export async function createFamily(fam: Family, mookuauhauId: number|undefined, 
             marriage_date
             marriage_date_dt
             marriage_place
-            owner_id
             residence
             residence_place
             source_uid
@@ -279,12 +278,12 @@ export async function get_ohana_by_pk(ohana_id: number, role: string, jwt_token:
           marriage_date_dt
           ohana_id
           marriage_place
-          owner_id
           residence
           residence_place
           source_uid
           wahine_id
           xref_id
+          mookuauhau_id
         }
       }
     `;
@@ -319,12 +318,12 @@ export async function get_kanaka_by_pk(kanaka_id: number, role: string, jwt_toke
           name
           name_aka
           name_surname
-          owner_id
           residence_place
           residence
           sex
           source_uid
           xref_id
+          mookuauhau_id
         }
       }
     `;
@@ -363,13 +362,13 @@ export async function get_kanaka_by_xrefid(xref_id: string|undefined, role: stri
             name
             name_aka
             name_surname
-            owner_id
             residence_place
             residence
             sex
             source_uid
             xref_id
-          }
+            mookuauhau_id
+        }
     }
     `;
     const variables = {
@@ -397,7 +396,6 @@ export async function get_ohana_by_xrefid(xref_id: string|undefined, role: strin
             change_date
             create_timestamp
             formal_name
-            owner_id
             source_uid
             xref_id
             kane_id
@@ -405,7 +403,8 @@ export async function get_ohana_by_xrefid(xref_id: string|undefined, role: strin
             marriage_date
             marriage_date_dt
             marriage_place
-          }
+            mookuauhau_id
+        }
     }
     `;
     const variables = {
@@ -442,7 +441,6 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
                 insert_kamalii_one(object: $object) {
                     kamalii_id
                     kanaka_id
-                    ohana_id
                     sex
                     xref_id
                 }
@@ -452,7 +450,6 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
                 object: {
                     kanaka_id: kanaka.kanaka_id,
                     ohana_id: ohana.ohana_id,
-                    owner_id: null,
                     sex: kanaka?.sex,
                     // xref_id: null,
                 }
