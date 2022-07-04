@@ -71,7 +71,7 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
     console.log("makuahine_kanaka : ", makuahine_kanaka);
     if (makuahine_kanaka?.kanaka.length > 0 && makuahine_kanaka?.kanaka[0].kanaka_id ) {
         // first only
-        params.wahine_id = makuakane_kanaka?.kanaka[0].kanaka_id;
+        params.wahine_id = makuahine_kanaka?.kanaka[0].kanaka_id;
     }
 
     const query = gql`
