@@ -1,6 +1,44 @@
 import { gqlRequest, gql } from './graphql-client.js';
 import { Family } from '../models/Family.js';
 import { Person } from '../models/Person.js';
+import { Genealogy } from '../models/Genealogy.js';
+
+export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
+    console.log("createGenealogy()");
+
+    // if (!jwt_token) {
+    //     return;
+    // }
+
+    let params: { [key: string]: any } = {
+        name: genealogy.name,
+        // xref_id: genealogy.xref_id,
+    };
+
+    if (genealogy.source_uid) { params.filename = genealogy.source_uid; }
+    if (genealogy.change_date) { params.change_date = genealogy.change_date; }
+
+    const query = gql`
+    mutation insertMookuauhau($object: mookuauhau_insert_input!) {
+        insert_mookuauhau_one(object: $object) {
+            mookuauhau_id
+            name
+            owner_id
+            filename
+            create_timestamp
+        }
+    }
+    `;
+    const variables = {
+        object: params,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
 
 export async function createPerson(person: Person, role: string, jwt_token: string) {
     console.log("createPerson()");
@@ -500,6 +538,7 @@ export function appCloseHandler() {
 }
 
 export const mutation_fns: { [key: string]: Function } = {
+    'creategenealogy': (genealogy: Genealogy, role: string, jwt_token: string) => createGenealogy(genealogy, role, jwt_token),
     'createperson': (person: Person, role: string, jwt_token: string) => createPerson(person, role, jwt_token),
     'createfamily': (fam: Family, role: string, jwt_token: string) => createFamily(fam, role, jwt_token),
     // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),

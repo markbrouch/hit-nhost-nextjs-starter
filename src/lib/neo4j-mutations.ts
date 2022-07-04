@@ -7,7 +7,13 @@ const NEO4J_PASS = process.env.NEO4J_PASS || '';
 let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
 
 import { Family } from '../models/Family.js';
+import { Genealogy } from '../models/Genealogy.js';
 import { Person } from '../models/Person.js';
+
+
+export async function createGenealogy(person: Genealogy) {
+    console.log("createGenealogy()");
+}
 
 export async function createPerson(person: Person): Promise<Neo4jnode | undefined> {
     console.log("createPerson()");
@@ -336,6 +342,7 @@ export function appCloseHandler() {
 }
 
 export const mutation_fns: { [key: string]: Function } = {
+    'creategenealogy': (genealogy: Genealogy, role: string, jwt_token: string) => createGenealogy(genealogy),
     'createperson': (person: Person) => createPerson(person),
     'createfamily': (fam: Family) => createFamily(fam),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'k'),

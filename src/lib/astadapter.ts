@@ -3,7 +3,7 @@ import { Parent } from "unist";
 import { mutation_fns as neo4j_mutation_fns } from "./neo4j-mutations.js";
 import { mutation_fns as graphql_mutation_fns } from "./graphql-mutations.js";
  
-export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number) {
+export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number, inputFilename: string|undefined) {
     console.log(`transform()`);
 
     console.log(`mutationMode: ${mutationMode}`);
@@ -31,6 +31,27 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
     if (gedcomObject.type === 'root') {
         const rootnodes: Array<any> = gedcomObject?.children;
+
+        // hardcode HEAD insert, it is not there
+        if (strategy['HEAD']) {
+            const fn = strategy['HEAD'];
+            const getFilename = (filepath: string|undefined) => {
+                if(!filepath) {
+                    return '';
+                }
+                return filepath.substring(filepath.lastIndexOf('/')+1);
+            };
+            const filename = getFilename(inputFilename);
+            console.log("filename: ", filename);
+            const item = {
+                data: {
+                    owner_id: null,
+                    name: filename?.replace('.ged', ''),
+                    source_uid: filename,
+                }
+            };
+            const id = await fn(item, recordsByType, insertMode, mutation_fns);
+        }
 
         for (let index = 0; index < rootnodes.length; index++) {
             const item = rootnodes[index];
@@ -81,7 +102,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 }
 
 const strategy: { [key: string]: any } = {
-    'HEAD': (item: Parent) => header(item),
+    'HEAD': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => header(item, recordsByType, insertMode, mutation_fns),
     'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => individual(item, recordsByType, insertMode, mutation_fns),
     'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => family(item, recordsByType, insertMode, mutation_fns),
     'REPO': (item: Parent) => repository(item),
@@ -102,8 +123,28 @@ const strategy: { [key: string]: any } = {
 // const strategy = strategy_neo4j;
 // const strategy = strategy_graphql;
 
-function header(item: Parent) {
+async function header(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
     console.log(`header()`);
+
+    console.log(`item: `, item);
+    
+    const genealogy: Genealogy | undefined = itemToGenealogy(item);
+    console.log("genealogy: ", genealogy);
+
+    if (genealogy && insertMode) {
+        // const rv = await createGenealogy(fam);
+        const fn = mutation_fns['creategenealogy'];
+        const [ role, token ] = ['public', '']; // dummy
+        const rv = await fn(genealogy, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createGenealogy()");
+    }
+
+    // process.exit(); // TEMP
+
 }
 
 async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
@@ -233,6 +274,7 @@ import { Data, Node } from 'unist';
 import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
+import { Genealogy } from "../models/Genealogy.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
@@ -295,6 +337,29 @@ function printChildren(item: Parent) {
 
         });
     }
+}
+
+function itemToGenealogy(item: any) {
+    // , filename: string|undefined, genealogyName: string|undefined
+    console.log(`itemToGenealogy()`);
+    // if (item.type !== 'HEAD') {
+    //     return;
+    // }
+
+    const data = item?.data;
+
+    console.log("data: ", data);
+
+    const genealogy = new Genealogy({
+        name: data?.name,
+        xref_id: data?.xref_id,
+
+        // change_date: data['CHANGE/DATE'],
+
+        source_uid: data?.source_uid,
+    });
+
+    return genealogy;
 }
 
 function itemToPerson(item: any) {

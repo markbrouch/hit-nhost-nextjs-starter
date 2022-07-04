@@ -50,7 +50,7 @@ type ExtKey = keyof typeof EXTENSION_TO_TYPE;
   } else {
     // process.stdout.write(output);
 
-    transform(parsed, mutationMode, insertMode, RECORD_LIMIT);
+    transform(parsed, mutationMode, insertMode, RECORD_LIMIT, infile);
 
   }
 })();
