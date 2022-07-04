@@ -29,6 +29,8 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
     const recordsByType: { [key: string]: number } = {};
 
+    let mookuauhauId: number|undefined;
+
     if (gedcomObject.type === 'root') {
         const rootnodes: Array<any> = gedcomObject?.children;
 
@@ -51,6 +53,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                 }
             };
             const id = await fn(item, recordsByType, insertMode, mutation_fns);
+            mookuauhauId = id;
         }
 
         for (let index = 0; index < rootnodes.length; index++) {
@@ -59,6 +62,8 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                 console.log(`[${index}] type: ${item.type}`);
                 console.log(`\t formal_name: ${item?.data?.formal_name}`);
                 console.log(`\t xref_id: ${item?.data?.xref_id}`);
+
+                item.mookuauhau_id = mookuauhauId;
 
                 if (strategy[item?.type]) {
                     console.log(`type ${item.type} supported.`);
@@ -103,8 +108,8 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
 const strategy: { [key: string]: any } = {
     'HEAD': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => header(item, recordsByType, insertMode, mutation_fns),
-    'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => individual(item, recordsByType, insertMode, mutation_fns),
-    'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) => family(item, recordsByType, insertMode, mutation_fns),
+    'INDI': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => individual(item, recordsByType, insertMode, mutation_fns, mookuauhauId),
+    'FAM': (item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => family(item, recordsByType, insertMode, mutation_fns, mookuauhauId),
     'REPO': (item: Parent) => repository(item),
     'SOUR': (item: Parent) => source(item),
     'TRLR': (item: Parent) => trailer(item),
@@ -131,11 +136,17 @@ async function header(item: Parent, recordsByType: { [key: string]: number }, in
     const genealogy: Genealogy | undefined = itemToGenealogy(item);
     console.log("genealogy: ", genealogy);
 
+    let mookuauhauId: number|undefined;
+
     if (genealogy && insertMode) {
         // const rv = await createGenealogy(fam);
         const fn = mutation_fns['creategenealogy'];
         const [ role, token ] = ['public', '']; // dummy
         const rv = await fn(genealogy, role, token);
+        console.log("rv: ", rv);
+
+        mookuauhauId = rv?.insert_mookuauhau_one.mookuauhau_id;
+        console.log("inserted mookuauhau_id: ", mookuauhauId);
 
         await mutation_fns['sleepytime']();
     }
@@ -145,9 +156,10 @@ async function header(item: Parent, recordsByType: { [key: string]: number }, in
 
     // process.exit(); // TEMP
 
+    return mookuauhauId;
 }
 
-async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
+async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
@@ -189,7 +201,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
         const [ role, token ] = ['public', '']; // dummy
-        const rv = await fn(person, role, token);
+        const rv = await fn(person, mookuauhauId, role, token);
 
         await mutation_fns['sleepytime']();
     }
@@ -202,7 +214,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
 
 }
 
-async function family(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }) {
+async function family(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`family()`);
     console.log(item);
 
@@ -243,7 +255,7 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
         // const rv = await createFamily(fam);
         const fn = mutation_fns['createfamily'];
         const [ role, token ] = ['public', '']; // dummy
-        const rv = await fn(fam, role, token);
+        const rv = await fn(fam, mookuauhauId, role, token);
 
         await mutation_fns['sleepytime']();
     }

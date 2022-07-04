@@ -40,7 +40,7 @@ export async function createGenealogy(genealogy: Genealogy, role: string, jwt_to
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function createPerson(person: Person, role: string, jwt_token: string) {
+export async function createPerson(person: Person, mookuauhauId: number|undefined, role: string, jwt_token: string) {
     console.log("createPerson()");
 
     // if (!jwt_token) {
@@ -61,12 +61,15 @@ export async function createPerson(person: Person, role: string, jwt_token: stri
     if (person.residence) { params.residence = person.residence; }
     if (person.residence_place) { params.residence_place = person.residence_place; }
 
+    if (mookuauhauId) { params.mookuauhau_id = mookuauhauId; }
+
     const query = gql`
     mutation insert_single_Person($object: kanaka_insert_input!) {
         insert_kanaka_one(object: $object) {
             kanaka_id
             name
             xref_id
+            mookuauhau_id
         }
     }
     `;
@@ -81,7 +84,7 @@ export async function createPerson(person: Person, role: string, jwt_token: stri
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function createFamily(fam: Family, role: string, jwt_token: string) {
+export async function createFamily(fam: Family, mookuauhauId: number|undefined, role: string, jwt_token: string) {
     console.log("createFamily() ", fam.xref_id);
 
     // if (!jwt_token) {
@@ -112,6 +115,8 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
         params.wahine_id = makuahine_kanaka?.kanaka[0].kanaka_id;
     }
 
+    if (mookuauhauId) { params.mookuauhau_id = mookuauhauId; }
+
     const query = gql`
     mutation insert_single_Ohana($object: ohana_insert_input!) {
         insert_ohana_one(object: $object) {
@@ -130,6 +135,7 @@ export async function createFamily(fam: Family, role: string, jwt_token: string)
             source_uid
             wahine_id
             xref_id
+            mookuauhau_id
         }
     }
     `;
@@ -539,8 +545,8 @@ export function appCloseHandler() {
 
 export const mutation_fns: { [key: string]: Function } = {
     'creategenealogy': (genealogy: Genealogy, role: string, jwt_token: string) => createGenealogy(genealogy, role, jwt_token),
-    'createperson': (person: Person, role: string, jwt_token: string) => createPerson(person, role, jwt_token),
-    'createfamily': (fam: Family, role: string, jwt_token: string) => createFamily(fam, role, jwt_token),
+    'createperson': (person: Person, mookuauhauId: number|undefined, role: string, jwt_token: string) => createPerson(person, mookuauhauId, role, jwt_token),
+    'createfamily': (fam: Family, mookuauhauId: number|undefined, role: string, jwt_token: string) => createFamily(fam, mookuauhauId, role, jwt_token),
     // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
     // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),
