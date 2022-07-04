@@ -27,6 +27,82 @@ array_relationships:
         table:
           schema: public
           name: ohana
+insert_permissions:
+  - role: public
+    permission:
+      check: {}
+      columns:
+        - sex
+        - birth_date_dt
+        - kanaka_id
+        - mookuauhau_id
+        - family_child
+        - family_spouse
+        - birth_date
+        - birth_place
+        - burial_place
+        - formal_name
+        - name
+        - name_aka
+        - name_surname
+        - residence
+        - residence_place
+        - source_uid
+        - _uid
+        - xref_id
+        - change_date
+        - create_timestamp
+select_permissions:
+  - role: public
+    permission:
+      columns:
+        - sex
+        - birth_date_dt
+        - kanaka_id
+        - mookuauhau_id
+        - family_child
+        - family_spouse
+        - birth_date
+        - birth_place
+        - burial_place
+        - formal_name
+        - name
+        - name_aka
+        - name_surname
+        - residence
+        - residence_place
+        - source_uid
+        - _uid
+        - xref_id
+        - change_date
+        - create_timestamp
+      filter: {}
+update_permissions:
+  - role: public
+    permission:
+      columns:
+        - sex
+        - birth_date_dt
+        - kanaka_id
+        - mookuauhau_id
+        - family_child
+        - family_spouse
+        - birth_date
+        - birth_place
+        - burial_place
+        - formal_name
+        - name
+        - name_aka
+        - name_surname
+        - residence
+        - residence_place
+        - source_uid
+        - _uid
+        - xref_id
+        - change_date
+        - create_timestamp
+      filter: {}
+      check: {}
 delete_permissions:
   - role: public
     permission:

@@ -16,6 +16,70 @@ array_relationships:
         table:
           schema: public
           name: kamalii
+insert_permissions:
+  - role: public
+    permission:
+      check: {}
+      columns:
+        - marriage_date_dt
+        - kane_id
+        - mookuauhau_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+select_permissions:
+  - role: public
+    permission:
+      columns:
+        - marriage_date_dt
+        - kane_id
+        - mookuauhau_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+      filter: {}
+update_permissions:
+  - role: public
+    permission:
+      columns:
+        - marriage_date_dt
+        - kane_id
+        - mookuauhau_id
+        - ohana_id
+        - wahine_id
+        - birth_place
+        - burial_place
+        - formal_name
+        - marriage_date
+        - marriage_place
+        - residence
+        - residence_place
+        - source_uid
+        - xref_id
+        - change_date
+        - create_timestamp
+      filter: {}
+      check: {}
 delete_permissions:
   - role: public
     permission:
