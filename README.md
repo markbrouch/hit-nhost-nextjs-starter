@@ -115,12 +115,23 @@ https://hasura.io/docs/latest/graphql/core/deployment/deployment-guides/docker/
 quickstart:
 ```
 cd ./hasura-docker
+{edit .env}
 {edit docker-compose.yml}
 docker-compose up -d
 docker ps
 ```
 
 Then you can connect to localhost:port for the Hasura endpoint as well as the postgresql you configured. 
+
+The .env under ./hasura-docker can look like this:
+```
+HASURA_GRAPHQL_METADATA_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres
+PG_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres
+HASURA_GRAPHQL_ADMIN_SECRET=gottokeepasecret
+JWT_SECRET_KEY=sharedsecretwithyourauthenticationprovider
+HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key": "${JWT_SECRET_KEY}"}'
+```
+
 
 ## Hasura mutations and metadata
 
@@ -152,4 +163,10 @@ hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecre
 
 ![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
 
+
+## generate 64 char string
+
+useful to make a new jwt secret
+
+`< /dev/urandom tr -dc \_A-Z-a-z-0-9 | head -c${1:-64};echo;`
 
