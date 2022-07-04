@@ -5,6 +5,9 @@ object_relationships:
   - name: kane
     using:
       foreign_key_constraint_on: kane_id
+  - name: mookuauhau
+    using:
+      foreign_key_constraint_on: mookuauhau_id
   - name: wahine
     using:
       foreign_key_constraint_on: wahine_id

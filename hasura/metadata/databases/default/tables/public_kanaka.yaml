@@ -6,13 +6,6 @@ object_relationships:
     using:
       foreign_key_constraint_on: mookuauhau_id
 array_relationships:
-  - name: kamalii
-    using:
-      foreign_key_constraint_on:
-        column: kanaka_id
-        table:
-          schema: public
-          name: kamalii
   - name: makuahine
     using:
       foreign_key_constraint_on:
@@ -27,6 +20,13 @@ array_relationships:
         table:
           schema: public
           name: ohana
+  - name: namakua
+    using:
+      foreign_key_constraint_on:
+        column: kanaka_id
+        table:
+          schema: public
+          name: kamalii
 insert_permissions:
   - role: public
     permission:

@@ -46,6 +46,82 @@ DETACH DELETE n
 
 # Hasura / graphql examples
 
+## query one person by xref_id, return relations
+
+- main query is an individual person
+- makuahine means this kanaka is a mother in an ʻohana relationship
+- makuakane means this kanaka is a father in an ʻohana relationship
+- nakamalii is a list of children of this kanaka (ʻohana relationship)
+- namakua is a list of makua this kanaka (other ʻohana relationships)
+
+
+```
+query kanakaByXrefidRelations($xref_id: String!) {
+  kanaka(where: {xref_id: {_eq: $xref_id}}) {
+    kanaka_id
+    name
+    sex
+    residence
+    birth_date
+    birth_place
+    xref_id
+    mookuauhau_id
+    namakua {
+      kanaka {
+        name
+        xref_id
+        sex
+      }
+    }
+    makuakane {
+      ohana_id
+      xref_id
+      kane_id
+      wahine {
+        kanaka_id
+        name
+        xref_id
+      }
+      nakamalii {
+        kamalii_id
+        kanaka {
+          kanaka_id
+          name
+          xref_id
+          sex
+        }
+      }
+    }
+    makuahine {
+      ohana_id
+      xref_id
+      wahine_id
+      kane {
+        kanaka_id
+        name
+        xref_id
+      }
+      nakamalii {
+        kamalii_id
+        kanaka {
+          kanaka_id
+          name
+          xref_id
+          sex
+        }
+      }
+    }
+  }
+}
+```
+
+parameters:
+
+```
+{"xref_id": "@I247@"}
+```
+
+
 ## query filter 
 
 ```
@@ -109,7 +185,7 @@ query kanakaSpecificBirthplace {
 }
 ```
 
-## summary 
+## summary - totals of all record types in database
 
 query m_summary {
   mookuauhau_aggregate {

@@ -53,9 +53,9 @@ CREATE TABLE public.kamalii (
     kamalii_id integer NOT NULL,
     kanaka_id integer NOT NULL,
     ohana_id integer NOT NULL,
-    xref_id text,
-    sex character varying(1), -- K|W or M|F
-    source_uid text,
+    -- xref_id text,             -- ** REMOVE THIS ***
+    -- sex character varying(1), -- ** REMOVE THIS ***
+    -- source_uid text,          -- ** REMOVE THIS ***
     create_timestamp timestamp(3) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 

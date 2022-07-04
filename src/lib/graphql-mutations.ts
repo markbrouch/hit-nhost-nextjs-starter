@@ -53,6 +53,7 @@ export async function createPerson(person: Person, mookuauhauId: number|undefine
         xref_id: person.xref_id,
     };
 
+    if (person.sex) { params.sex = person.sex; }
     if (person.formal_name) { params.formal_name = person.formal_name; }
     if (person.birth_date) { params.birth_date = person.birth_date; }
     if (person.birth_place) { params.birth_place = person.birth_place; }
@@ -239,11 +240,8 @@ export async function famLinkWife(fam_id: string, person_id: string, role: strin
     console.log(`famLinkWife() ${fam_id} ${person_id}`);
     // const rel = ptype.toUpperCase(); // K | W
 
-    // update mutation
-    // update ohana set kane_id = x where ohana_id = y
-
     const query = gql`
-    mutation update_ohana_kane_by_pk($ohana_id: Int!, $wahine_id: Int!) {
+    mutation update_ohana_wahine_by_pk($ohana_id: Int!, $wahine_id: Int!) {
         update_ohana_by_pk(pk_columns: {ohana_id: $ohana_id}, _set: {wahine_id: $wahine_id}) {
             ohana_id
             wahine_id
@@ -440,9 +438,8 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
             mutation insert_single_Child($object: kamalii_insert_input!) {
                 insert_kamalii_one(object: $object) {
                     kamalii_id
+                    ohana_id
                     kanaka_id
-                    sex
-                    xref_id
                 }
             }
             `;
@@ -450,7 +447,7 @@ export async function famLinkChild(fam_id: string|undefined, person_id: string, 
                 object: {
                     kanaka_id: kanaka.kanaka_id,
                     ohana_id: ohana.ohana_id,
-                    sex: kanaka?.sex,
+                    // sex: kanaka?.sex,
                     // xref_id: null,
                 }
             };
@@ -527,14 +524,17 @@ export async function linkChildParentDirect(parentId: string, childId: string) {
 }
 
 export async function sleepytime() {
-    const sleeptime = 10;
-    // https://stackoverflow.com/a/38084640/408747
-    await setTimeout(
-        () => {
-            console.log(`waiting ${sleeptime}...`);
-        }
-        , sleeptime
-    );
+    const sleeptime = 0;
+
+    if(sleeptime) {
+        // https://stackoverflow.com/a/38084640/408747
+        await setTimeout(
+            () => {
+                console.log(`waiting ${sleeptime}...`);
+            }
+            , sleeptime
+        );
+    }
 }
 
 export function appCloseHandler() {
