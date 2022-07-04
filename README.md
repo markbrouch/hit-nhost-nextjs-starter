@@ -122,71 +122,77 @@ parameters:
 ```
 
 
-## query filter 
+## query filter by field
 
 ```
-query kanakaSpecificBirthplace {
-  kanaka(where: {birth_place: {_eq: "the Ololo Genealogy"}}) {
+query kanakaSpecificBirthplace($mookuauhau_id:Int!, $birth_place:String!) {
+  kanaka(where: {mookuauhau_id: {_eq: $mookuauhau_id}}, birth_place: {_eq: $birth_place}}) {
     kanaka_id
     name
-    formal_name
-    birth_place
+    sex
+    residence
     birth_date
-    change_date
+    birth_place
+    xref_id
     mookuauhau_id
+    namakua {
+      kanaka {
+        name
+        xref_id
+        sex
+      }
+    }
     makuakane {
       ohana_id
+      xref_id
+      kane_id
+      wahine {
+        kanaka_id
+        name
+        xref_id
+      }
       nakamalii {
         kamalii_id
         kanaka {
           kanaka_id
           name
           xref_id
+          sex
         }
-        kanaka_id
       }
     }
     makuahine {
       ohana_id
+      xref_id
+      wahine_id
+      kane {
+        kanaka_id
+        name
+        xref_id
+      }
       nakamalii {
         kamalii_id
         kanaka {
           kanaka_id
           name
           xref_id
+          sex
         }
-        ohana {
-          ohana_id
-          kane {
-            kanaka_id
-            name
-            xref_id
-          }
-          wahine {
-            kanaka_id
-            name
-            xref_id
-          }
-        }
-      }
-    }
-    kamalii {
-      kanaka_id
-      kamalii_id
-      ohana_id
-      kanaka {
-        kanaka_id
-        name
-        sex
-        xref_id
       }
     }
   }
 }
 ```
 
+parameters:
+
+```
+{"mookuauhau_id": 101, "birth_place": "the Ololo Genealogy"}
+```
+
 ## summary - totals of all record types in database
 
+```
 query m_summary {
   mookuauhau_aggregate {
     aggregate {
@@ -209,6 +215,7 @@ query m_summary {
     }
   }
 }
+```
 
 ## Hasura + postgresql on docker 
 

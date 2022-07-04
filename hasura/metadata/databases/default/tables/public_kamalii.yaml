@@ -13,12 +13,9 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - sex
         - kamalii_id
         - kanaka_id
         - ohana_id
-        - source_uid
-        - xref_id
         - create_timestamp
 select_permissions:
   - role: public
@@ -27,21 +24,15 @@ select_permissions:
         - kamalii_id
         - kanaka_id
         - ohana_id
-        - xref_id
-        - sex
-        - source_uid
         - create_timestamp
       filter: {}
 update_permissions:
   - role: public
     permission:
       columns:
-        - sex
         - kamalii_id
         - kanaka_id
         - ohana_id
-        - source_uid
-        - xref_id
         - create_timestamp
       filter: {}
       check: {}
