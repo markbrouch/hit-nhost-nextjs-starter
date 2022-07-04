@@ -57,6 +57,7 @@ query kanakaSpecificBirthplace {
     birth_place
     birth_date
     change_date
+    mookuauhau_id
     makuakane {
       ohana_id
       nakamalii {
@@ -80,15 +81,16 @@ query kanakaSpecificBirthplace {
         }
         ohana {
           ohana_id
-          kanakakane {
+          kane {
             kanaka_id
             name
+            xref_id
           }
-          kanakawahine {
+          wahine {
             kanaka_id
             name
+            xref_id
           }
-          xref_id
         }
       }
     }
@@ -107,6 +109,30 @@ query kanakaSpecificBirthplace {
 }
 ```
 
+## summary 
+
+query m_summary {
+  mookuauhau_aggregate {
+    aggregate {
+      count
+    }
+  }
+  ohana_aggregate {
+    aggregate {
+      count
+    }
+  }
+  kanaka_aggregate {
+    aggregate {
+      count
+    }
+  }
+  kamalii_aggregate {
+    aggregate {
+      count
+    }
+  }
+}
 
 ## Hasura + postgresql on docker 
 
