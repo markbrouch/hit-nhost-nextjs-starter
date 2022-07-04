@@ -1,7 +1,7 @@
 
 CREATE TABLE public.ohana (
     ohana_id integer NOT NULL,
-    owner_id uuid NULL, -- nhost user_id
+    mookuauhau_id integer NULL,
     formal_name text,
     xref_id text,
     -- kane text,
@@ -41,15 +41,18 @@ ALTER TABLE ONLY public.ohana
 ALTER TABLE ONLY public.ohana
     ADD CONSTRAINT ohana_wahineid_fk FOREIGN KEY (wahine_id) REFERENCES public.kanaka(kanaka_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.ohana
+    ADD CONSTRAINT ohana_mookuauhauid_fk FOREIGN KEY (mookuauhau_id) REFERENCES public.mookuauhau(mookuauhau_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
 CREATE INDEX ohana_kaneid_idx ON public.ohana (kane_id);
 CREATE INDEX ohana_wahineid_idx ON public.ohana (wahine_id);
 
+CREATE INDEX ohana_mookuauhauid_idx ON public.ohana (mookuauhau_id);
 
 CREATE TABLE public.kamalii (
     kamalii_id integer NOT NULL,
     kanaka_id integer NOT NULL,
     ohana_id integer NOT NULL,
-    owner_id uuid NULL, -- nhost user_id
     xref_id text,
     sex character varying(1), -- K|W or M|F
     source_uid text,
