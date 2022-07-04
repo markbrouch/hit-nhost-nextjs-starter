@@ -42,6 +42,7 @@ export async function createGenealogy(genealogy: Genealogy, role: string, jwt_to
 
 export async function createPerson(person: Person, mookuauhauId: number|undefined, role: string, jwt_token: string) {
     console.log("createPerson()");
+    console.log("mookuauhauId: ", mookuauhauId);
 
     // if (!jwt_token) {
     //     return;

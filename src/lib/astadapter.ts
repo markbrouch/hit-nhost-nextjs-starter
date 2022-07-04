@@ -63,13 +63,13 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                 console.log(`\t formal_name: ${item?.data?.formal_name}`);
                 console.log(`\t xref_id: ${item?.data?.xref_id}`);
 
-                item.mookuauhau_id = mookuauhauId;
+                // item.data.mookuauhau_id = mookuauhauId;
 
                 if (strategy[item?.type]) {
                     console.log(`type ${item.type} supported.`);
 
                     const fn = strategy[item.type];
-                    const id = await fn(item, recordsByType, insertMode, mutation_fns);
+                    const id = await fn(item, recordsByType, insertMode, mutation_fns, mookuauhauId);
                 }
                 else {
                     console.log(`type ${item.type} not supported.`);
@@ -201,6 +201,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
         const [ role, token ] = ['public', '']; // dummy
+        console.log("mookuauhauId ", mookuauhauId);
         const rv = await fn(person, mookuauhauId, role, token);
 
         await mutation_fns['sleepytime']();
