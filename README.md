@@ -417,6 +417,9 @@ hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecre
 
 ![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
 
+# database schema
+
+![database schema diagram](static/mookuauhau-erd.png?raw=true)
 
 ## generate 64 char string
 
