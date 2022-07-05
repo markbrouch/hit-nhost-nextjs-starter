@@ -67,10 +67,19 @@ query kanakaByXrefidRelations($xref_id: String!) {
     xref_id
     mookuauhau_id
     namakua {
-      kanaka {
-        name
-        xref_id
-        sex
+      ohana {
+        kane_id
+        wahine_id
+        kane {
+          kanaka_id
+          xref_id
+          name
+        }
+        wahine {
+          kanaka_id
+          xref_id
+          name
+        }
       }
     }
     makuakane {
@@ -121,6 +130,142 @@ parameters:
 {"xref_id": "@I247@"}
 ```
 
+result:
+
+```
+{
+  "data": {
+    "kanaka": [
+      {
+        "kanaka_id": 347,
+        "name": "Mary Punapanawea /Adams/",
+        "sex": "F",
+        "residence": null,
+        "birth_date": "28 Feb 1838",
+        "birth_place": "Niu Hawaii",
+        "xref_id": "@I247@",
+        "mookuauhau_id": 101,
+        "namakua": [
+          {
+            "ohana": {
+              "kane_id": 328,
+              "wahine_id": 342,
+              "kane": {
+                "kanaka_id": 328,
+                "xref_id": "@I228@",
+                "name": "Alexander /Adams/"
+              },
+              "wahine": {
+                "kanaka_id": 342,
+                "xref_id": "@I242@",
+                "name": "Sarah Ulukaihonua /Harbottle/"
+              }
+            }
+          }
+        ],
+        "makuakane": [],
+        "makuahine": [
+          {
+            "ohana_id": 318,
+            "xref_id": "@F218@",
+            "wahine_id": 347,
+            "kane": {
+              "kanaka_id": 340,
+              "name": "William /Auld/",
+              "xref_id": "@I240@"
+            },
+            "nakamalii": []
+          },
+          {
+            "ohana_id": 320,
+            "xref_id": "@F220@",
+            "wahine_id": 347,
+            "kane": {
+              "kanaka_id": 459,
+              "name": "Edwin Harbottle /Boyd/",
+              "xref_id": "@I359@"
+            },
+            "nakamalii": [
+              {
+                "kamalii_id": 502,
+                "kanaka": {
+                  "kanaka_id": 350,
+                  "name": "Mary Euphrozine Hio /Boyd/",
+                  "xref_id": "@I250@",
+                  "sex": "F"
+                }
+              },
+              {
+                "kamalii_id": 503,
+                "kanaka": {
+                  "kanaka_id": 503,
+                  "name": "James Aalapuna  Harbottle /Boyd/",
+                  "xref_id": "@I403@",
+                  "sex": "M"
+                }
+              },
+              {
+                "kamalii_id": 504,
+                "kanaka": {
+                  "kanaka_id": 464,
+                  "name": "Edward Strehz /Boyd/",
+                  "xref_id": "@I364@",
+                  "sex": "M"
+                }
+              },
+              {
+                "kamalii_id": 505,
+                "kanaka": {
+                  "kanaka_id": 380,
+                  "name": "Harriet /Boyd/",
+                  "xref_id": "@I280@",
+                  "sex": "F"
+                }
+              },
+              {
+                "kamalii_id": 506,
+                "kanaka": {
+                  "kanaka_id": 378,
+                  "name": "Robert Napunako /Boyd/",
+                  "xref_id": "@I278@",
+                  "sex": "M"
+                }
+              },
+              {
+                "kamalii_id": 507,
+                "kanaka": {
+                  "kanaka_id": 382,
+                  "name": "Caroline Hawea /Boyd/",
+                  "xref_id": "@I282@",
+                  "sex": "F"
+                }
+              },
+              {
+                "kamalii_id": 508,
+                "kanaka": {
+                  "kanaka_id": 427,
+                  "name": "Charlotte Kealoha /Boyd/",
+                  "xref_id": "@I327@",
+                  "sex": "F"
+                }
+              },
+              {
+                "kamalii_id": 509,
+                "kanaka": {
+                  "kanaka_id": 344,
+                  "name": "Sarah Kaleimoku /Boyd/",
+                  "xref_id": "@I244@",
+                  "sex": "F"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ## query filter by field
 
