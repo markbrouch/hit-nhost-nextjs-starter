@@ -52,7 +52,7 @@ DETACH DELETE n
 - makuahine means this kanaka is a mother in an ʻohana relationship
 - makuakane means this kanaka is a father in an ʻohana relationship
 - nakamalii is a list of children of this kanaka (ʻohana relationship)
-- namakua is a list of makua this kanaka (other ʻohana relationships)
+- namakua is a list of makua/parents this kanaka is a child of (other ʻohana relationships)
 
 
 ```
