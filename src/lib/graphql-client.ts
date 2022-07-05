@@ -2,6 +2,7 @@
 import { gql, GraphQLClient } from 'graphql-request';
 
 const graphqlClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT || '');
+const HASURA_GRAPHQL_ADMIN_SECRET = process.env.HASURA_GRAPHQL_ADMIN_SECRET || '';
 
 async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_token: string, addHeaders: { [key: string]: string }) {
     let gqlRequestHeaders: { [key: string]: string } = {
@@ -11,6 +12,9 @@ async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_
 
 	if(jwt_token) {
 		gqlRequestHeaders['Authorization'] = `Bearer ${jwt_token}`;
+	}
+	if( HASURA_GRAPHQL_ADMIN_SECRET ) {
+		gqlRequestHeaders['X-Hasura-Admin-Secret'] = HASURA_GRAPHQL_ADMIN_SECRET;
 	}
 	if(addHeaders) {
 		Object.keys(addHeaders).forEach(key => {
