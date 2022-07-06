@@ -13,3 +13,7 @@ coverage
 # API keys and secrets
 .env*
 
+# ignore nhost metadata export files
+# note: must hand-edit hasura/metadata/databases/default/tables/tables.yaml
+/hasura/metadata/databases/default/tables/auth*
+/hasura/metadata/databases/default/tables/storage*
