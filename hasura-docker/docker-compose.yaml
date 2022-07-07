@@ -4,7 +4,7 @@ services:
     image: postgres:14
     restart: always
     volumes:
-    - db_data_mookuauhau:/var/lib/postgresql/data
+    - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgrespassword
     ports: 
@@ -33,4 +33,4 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key": "${JWT_SECRET_KEY}"}'
 volumes:
-  db_data_mookuauhau:
+  db_data:
