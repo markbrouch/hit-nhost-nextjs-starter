@@ -383,7 +383,16 @@ HASURA_GRAPHQL_METADATA_DATABASE_URL=postgres://postgres:postgrespassword@postgr
 PG_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres
 HASURA_GRAPHQL_ADMIN_SECRET=gottokeepasecret
 JWT_SECRET_KEY=sharedsecretwithyourauthenticationprovider
-HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key": "${JWT_SECRET_KEY}"}'
+HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key": "sharedsecretwithyourauthenticationprovider"}'
+```
+
+## deploy to docker swarm
+
+This command will deploy to your local docker swarm stack, and process the .env file to the compose yml. 
+
+```
+cd ./hasura-docker
+docker stack deploy -c <(docker-compose config) mooku
 ```
 
 

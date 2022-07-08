@@ -10,6 +10,9 @@ services:
     ports: 
       - "5441:5432"
     container_name: postgres-mookuauhau-backend
+    deploy:
+      placement:
+        constraints: [node.role == manager]
   graphql-engine:
     image: hasura/graphql-engine:v2.8.3
     ports:
@@ -32,5 +35,8 @@ services:
       ## uncomment next line to set an admin secret
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key": "${JWT_SECRET_KEY}"}'
+    deploy:
+      placement:
+        constraints: [node.role == manager]
 volumes:
   db_data:
