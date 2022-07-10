@@ -21,8 +21,10 @@ insert_permissions:
     permission:
       check: {}
       columns:
+        - file_id
         - mookuauhau_id
         - filename
+        - load_status
         - name
         - create_timestamp
         - owner_id
@@ -32,8 +34,10 @@ insert_permissions:
         owner_id:
           _eq: X-Hasura-User-Id
       columns:
+        - file_id
         - mookuauhau_id
         - filename
+        - load_status
         - name
         - create_timestamp
         - owner_id
@@ -41,8 +45,10 @@ select_permissions:
   - role: public
     permission:
       columns:
+        - file_id
         - mookuauhau_id
         - filename
+        - load_status
         - name
         - create_timestamp
         - owner_id
@@ -50,11 +56,13 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - file_id
         - mookuauhau_id
-        - owner_id
-        - name
         - filename
+        - load_status
+        - name
         - create_timestamp
+        - owner_id
       filter:
         owner_id:
           _eq: X-Hasura-User-Id
@@ -62,8 +70,10 @@ update_permissions:
   - role: public
     permission:
       columns:
+        - file_id
         - mookuauhau_id
         - filename
+        - load_status
         - name
         - create_timestamp
         - owner_id
@@ -72,8 +82,10 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - file_id
         - mookuauhau_id
         - filename
+        - load_status
         - name
         - create_timestamp
         - owner_id
