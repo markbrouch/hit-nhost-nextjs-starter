@@ -68,6 +68,8 @@ query kanakaByXrefidRelations($xref_id: String!) {
     mookuauhau_id
     namakua {
       ohana {
+        ohana_id
+        xref_id
         kane_id
         wahine_id
         kane {
@@ -93,6 +95,10 @@ query kanakaByXrefidRelations($xref_id: String!) {
       }
       nakamalii {
         kamalii_id
+        ohana {
+          ohana_id
+          xref_id
+        }
         kanaka {
           kanaka_id
           name
@@ -148,6 +154,8 @@ result:
         "namakua": [
           {
             "ohana": {
+              "ohana_id": 307,
+              "xref_id": "@F207@",
               "kane_id": 328,
               "wahine_id": 342,
               "kane": {
@@ -393,6 +401,7 @@ This command will deploy to your local docker swarm stack, and process the .env 
 ```
 cd ./hasura-docker
 docker stack deploy -c <(docker-compose config) mooku
+docker service ls
 ```
 
 
