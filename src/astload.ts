@@ -11,18 +11,11 @@ if(RECORD_LIMIT) {
   console.log(`RECORD_LIMIT: ${RECORD_LIMIT}`);
 }
 
-const insertMode = process.env.INSERT_MODE ? true : false;
+const insertMode = process.env.INSERT_MODE === 'false' ? false : true;
 
 import * as Fs from "fs";
-import { toD3Force, parse, toDot, compact } from 'parse-gedcom';
+import { parse } from 'parse-gedcom';
 import { transform } from "./lib/astadapter.js";
-
-const EXTENSION_TO_TYPE = {
-  ".json": "json",
-  ".d3.json": "force",
-  ".dot": "dot",
-};
-type ExtKey = keyof typeof EXTENSION_TO_TYPE;
 
 (async () => {
   const infile = inputfile || '';
