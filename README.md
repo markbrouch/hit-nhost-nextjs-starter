@@ -1,21 +1,16 @@
 
 #  mookuauhau-backend / gedcomloader
 
-Usage:
+Backend code repository for the Moʻokūʻauhau project 
+
+- Hasura setup w/PostgreSQL migrations
+- GEDCOM file loader (command line)
+
+# Usage
 
 ```
 npm run build
 npm run load ../gedcom/mookuauhau.ged
-```
-
-# load to neo4j database .env file entries
-
-```
-MUTATION_MODE=neo4j
-NEO4J_ENDPOINT=bolt://localhost
-NEO4J_USER=yourusername
-NEO4J_PASS=yourpassword
-INSERT_MODE=true
 ```
 
 # load to hasura graphql database .env file entries
@@ -24,24 +19,6 @@ INSERT_MODE=true
 MUTATION_MODE=graphql
 GRAPHQL_ENDPOINT=https://something/v1/graphql
 INSERT_MODE=true
-```
-
-# neo4j / Cypher examples
-
-## query filter with edges
-
-```
-MATCH path=(p:Person {birth_place:'the Ololo Genealogy'})-->()
-RETURN path
-```
-
-## delete all nodes and relations
-
-if testing loads and wanting to delete all...
-
-```
-MATCH (n)
-DETACH DELETE n
 ```
 
 # Hasura / graphql examples
@@ -438,6 +415,36 @@ hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecre
 # database schema
 
 ![database schema diagram](static/mookuauhau-erd.png?raw=true)
+
+# Neo4j - older import code
+
+## load to neo4j database .env file entries
+
+```
+MUTATION_MODE=neo4j
+NEO4J_ENDPOINT=bolt://localhost
+NEO4J_USER=yourusername
+NEO4J_PASS=yourpassword
+INSERT_MODE=true
+```
+
+## neo4j / Cypher examples
+
+### query filter with edges
+
+```
+MATCH path=(p:Person {birth_place:'the Ololo Genealogy'})-->()
+RETURN path
+```
+
+### delete all nodes and relations
+
+if testing loads and wanting to delete all...
+
+```
+MATCH (n)
+DETACH DELETE n
+```
 
 ## generate 64 char string
 
