@@ -86,7 +86,7 @@ export async function createPerson(person: Person, mookuauhauId: number|undefine
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function createFamily(fam: Family, mookuauhauId: number|undefined, role: string, jwt_token: string) {
+export async function createFamily(fam: Family, mookuauhau_id: number|undefined, role: string, jwt_token: string) {
     console.log("createFamily() ", fam.xref_id);
 
     // if (!jwt_token) {
@@ -103,21 +103,21 @@ export async function createFamily(fam: Family, mookuauhauId: number|undefined, 
     // if (fam.wife) { params.wahine_id = fam.wife; }
     // if (fam.husband) { params.kane_id = fam.husband; }
 
-    const makuakane_kanaka = await get_kanaka_by_xrefid(fam.husband, role, jwt_token);
+    const makuakane_kanaka = await get_kanaka_by_xrefid(mookuauhau_id, fam.husband, role, jwt_token);
     console.log("makuakane_kanaka : ", makuakane_kanaka);
     if (makuakane_kanaka?.kanaka.length > 0 && makuakane_kanaka?.kanaka[0].kanaka_id ) {
         // first only
         params.kane_id = makuakane_kanaka?.kanaka[0].kanaka_id;
     }
 
-    const makuahine_kanaka = await get_kanaka_by_xrefid(fam.wife, role, jwt_token);
+    const makuahine_kanaka = await get_kanaka_by_xrefid(mookuauhau_id, fam.wife, role, jwt_token);
     console.log("makuahine_kanaka : ", makuahine_kanaka);
     if (makuahine_kanaka?.kanaka.length > 0 && makuahine_kanaka?.kanaka[0].kanaka_id ) {
         // first only
         params.wahine_id = makuahine_kanaka?.kanaka[0].kanaka_id;
     }
 
-    if (mookuauhauId) { params.mookuauhau_id = mookuauhauId; }
+    if (mookuauhau_id) { params.mookuauhau_id = mookuauhau_id; }
 
     const query = gql`
     mutation insert_single_Ohana($object: ohana_insert_input!) {
@@ -178,7 +178,7 @@ export async function createFamily(fam: Family, mookuauhauId: number|undefined, 
             console.log("c.xref_id: ", c.xref_id);
 
             if (fam.xref_id && c.xref_id) {
-                const kamalii = await get_kanaka_by_xrefid(c.xref_id, role, jwt_token); 
+                const kamalii = await get_kanaka_by_xrefid(mookuauhau_id, c.xref_id, role, jwt_token); 
                 console.log("kamalii: ", kamalii);
                 if(kamalii.kanaka.length > 0) {
                     // first
@@ -186,7 +186,7 @@ export async function createFamily(fam: Family, mookuauhauId: number|undefined, 
                     const kid_xref_id = kamalii.kanaka[0]?.xref_id;
                     console.log("kid: ", kid);
                     console.log("kid_xref_id: ", kid_xref_id);
-                    const crv = await famLinkChild(fam.xref_id, kid_xref_id, role, jwt_token);
+                    const crv = await famLinkChild(mookuauhau_id, fam.xref_id, kid_xref_id, role, jwt_token);
                 }
                 else {
                     console.log("kamalii not linked to kanaka record - not normal");
@@ -336,16 +336,16 @@ export async function get_kanaka_by_pk(kanaka_id: number, role: string, jwt_toke
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function get_kanaka_by_xrefid(xref_id: string|undefined, role: string, jwt_token: string) : Promise<any|undefined> {
-    console.log(`get_kanaka_by_xrefid(${xref_id}, role, jwt_token)`);
+export async function get_kanaka_by_xrefid(mookuauhau_id: number|undefined, xref_id: string|undefined, role: string, jwt_token: string) : Promise<any|undefined> {
+    console.log(`get_kanaka_by_xrefid(${mookuauhau_id}, ${xref_id}, role, jwt_token)`);
 
     if(!xref_id) {
         return undefined;
     }
 
     const query = gql`
-    query get_kanaka_by_xrefid($xref_id:String!) {
-        kanaka(where: {xref_id: {_eq: $xref_id}}) {
+    query get_kanaka_by_xrefid($mookuauhau_id:Int!, $xref_id:String!) {
+        kanaka(where: {xref_id: {_eq: $xref_id}, mookuauhau_id: {_eq: $mookuauhau_id} }) {
             kanaka_id
             _uid
             birth_date
@@ -370,6 +370,7 @@ export async function get_kanaka_by_xrefid(xref_id: string|undefined, role: stri
     }
     `;
     const variables = {
+        mookuauhau_id: mookuauhau_id,
         xref_id: xref_id,
     };
 
@@ -380,16 +381,16 @@ export async function get_kanaka_by_xrefid(xref_id: string|undefined, role: stri
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function get_ohana_by_xrefid(xref_id: string|undefined, role: string, jwt_token: string) : Promise<any|undefined> {
-    console.log(`get_ohana_by_xrefid(${xref_id}, role, jwt_token)`);
+export async function get_ohana_by_xrefid(mookuauhau_id: number|undefined, xref_id: string|undefined, role: string, jwt_token: string) : Promise<any|undefined> {
+    console.log(`get_ohana_by_xrefid(${mookuauhau_id}, ${xref_id}, role, jwt_token)`);
 
     if(!xref_id) {
         return undefined;
     }
 
     const query = gql`
-    query get_ohana_by_xrefid($xref_id:String!) {
-        ohana(where: {xref_id: {_eq: $xref_id}}) {
+    query get_ohana_by_xrefid($mookuauhau_id:Int!, $xref_id:String!) {
+        ohana(where: {xref_id: {_eq: $xref_id}, mookuauhau_id: {_eq: $mookuauhau_id} }) {
             ohana_id
             change_date
             create_timestamp
@@ -406,6 +407,7 @@ export async function get_ohana_by_xrefid(xref_id: string|undefined, role: strin
     }
     `;
     const variables = {
+        mookuauhau_id: mookuauhau_id,
         xref_id: xref_id,
     };
 
@@ -416,16 +418,16 @@ export async function get_ohana_by_xrefid(xref_id: string|undefined, role: strin
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function famLinkChild(fam_id: string|undefined, person_id: string, role: string, jwt_token: string) : Promise<number|undefined> {
+export async function famLinkChild(mookuauhau_id: number|undefined, fam_id: string|undefined, person_id: string, role: string, jwt_token: string) : Promise<number|undefined> {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
     let kamalii_id: number|undefined;
     try {
 
         // lookup ohana_id from fam_id|xref_id
-        const ohanamatches = await get_ohana_by_xrefid(fam_id, role, jwt_token);
+        const ohanamatches = await get_ohana_by_xrefid(mookuauhau_id, fam_id, role, jwt_token);
         console.log("ohanamatches: ", ohanamatches);
         // lookup kanaka_id from person_id|xref_id
-        const kanakamatches = await get_kanaka_by_xrefid(person_id, role, jwt_token);
+        const kanakamatches = await get_kanaka_by_xrefid(mookuauhau_id, person_id, role, jwt_token);
         console.log("kanakamatches: ", kanakamatches);
         if(ohanamatches?.ohana.length > 0 && kanakamatches?.kanaka.length > 0) {
             const ohana = ohanamatches.ohana[0];
@@ -598,7 +600,7 @@ export const mutation_fns: { [key: string]: Function } = {
     // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
     // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),
-    'linkfamchild': (fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(fam_id, person_id, role, jwt_token),
+    'linkfamchild': (mookuauhau_id: number|undefined, fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(mookuauhau_id, fam_id, person_id, role, jwt_token),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
     'indexcreation': () => console.log('no op'),

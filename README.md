@@ -1,23 +1,32 @@
 # mookuauhau-backend / gedcomloader
 
-Backend code repository for the Moʻokūʻauhau project 
+Backend code repository for the Moʻokūʻauhau project
 
 - Hasura setup w/PostgreSQL migrations
 - GEDCOM file loader (command line)
 
 # Usage
 
+load a GEDCOM file on command line
+
 ```
-npm run build
 npm run load ../gedcom/mookuauhau.ged
+```
+
+load a GEDCOM file which was loaded to the backend queue, in load_status==new
+
+```
+npm run queueload
 ```
 
 # load to hasura graphql database .env file entries
 
 ```
-MUTATION_MODE=graphql
 HASURA_GRAPHQL_ENDPOINT=https://something/v1/graphql
-INSERT_MODE=true
+HASURA_GRAPHQL_ADMIN_SECRET=notmysecret
+# for nhost.io auth+storage features
+NHOST_BACKEND_URL=https://something
+NHOST_ADMIN_SECRET=notmysecret
 ```
 
 # Hasura / graphql examples
