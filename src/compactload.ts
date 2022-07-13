@@ -29,16 +29,8 @@ import { transform } from "./lib/astadapter.js";
   const parsed = parse(inputStr);
   const compacted = compact(parsed);
 
-  let type = "json";
-
   let output: string = "";
-
-  switch (type) {
-    case "json": {
-      output = JSON.stringify(compacted, null, 2);
-      break;
-    }
-  }
+  output = JSON.stringify(compacted, null, 2);
 
   if (outfile) {
     Fs.writeFileSync(outfile, output, "utf8");

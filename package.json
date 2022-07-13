@@ -11,6 +11,7 @@
     "show": "node -r dotenv/config ./dist/index.js",
     "astload": "node -r dotenv/config ./dist/astload.js",
     "load": "npm run build && node -r dotenv/config ./dist/compactload.js",
+    "queueload": "npm run build && node -r dotenv/config ./dist/queueload.js",
     "t4j": "node -r dotenv/config ./dist/neo4jtest.js",
     "tgql": "node -r dotenv/config ./dist/graphqltest.js",
     "cli": "ts-node src/cli.ts",
@@ -22,10 +23,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nhost/nhost-js": "^1.4.1",
+    "@nhost/nhost-js": "^1.4.5",
     "dotenv": "^16.0.1",
     "graphql-request": "^4.3.0",
     "neo4j-driver": "^4.4.6",
+    "node-fetch": "^3.2.8",
     "parse-gedcom": "^2.0.1"
   },
   "devDependencies": {

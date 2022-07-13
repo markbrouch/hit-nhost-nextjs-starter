@@ -1,7 +1,7 @@
 
 import { gql, GraphQLClient } from 'graphql-request';
 
-const graphqlClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT || '');
+const graphqlClient = new GraphQLClient(process.env.HASURA_GRAPHQL_ENDPOINT || '');
 const HASURA_GRAPHQL_ADMIN_SECRET = process.env.HASURA_GRAPHQL_ADMIN_SECRET || '';
 
 async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_token: string, addHeaders: { [key: string]: string }) {
@@ -22,13 +22,13 @@ async function gqlRequest(query: string, variables: { [key: string]: any }, jwt_
 		});
 	}
 
-	console.log("gqlRequestHeaders: ", gqlRequestHeaders);
+	// console.log("gqlRequestHeaders: ", gqlRequestHeaders);
 
 	// select which endpoint
 	const client = graphqlClient;
 
 	// console.log("client.url: ", client.url);
-	console.log("process.env.GRAPHQL_ENDPOINT: ", process.env.GRAPHQL_ENDPOINT);
+	// console.log("process.env.HASURA_GRAPHQL_ENDPOINT: ", process.env.HASURA_GRAPHQL_ENDPOINT);
 
 	return await client.request(query, variables, gqlRequestHeaders);
 }

@@ -3,10 +3,11 @@ import { Parent } from "unist";
 import { mutation_fns as neo4j_mutation_fns } from "./neo4j-mutations.js";
 import { mutation_fns as graphql_mutation_fns } from "./graphql-mutations.js";
  
-export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number, inputFilename: string|undefined) {
+export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number, inputFilename: string|undefined, mookuauhauId: number|undefined) {
     console.log(`transform()`);
 
     console.log(`mutationMode: ${mutationMode}`);
+    console.log(`mookuauhauId: ${mookuauhauId}`);
     // this allows us to plug in which mutation functions to use
     let mutation_fns: { [key: string]: Function }| undefined;
     if (mutationMode === 'graphql') {
@@ -29,31 +30,35 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
     const recordsByType: { [key: string]: number } = {};
 
-    let mookuauhauId: number|undefined;
-
     if (gedcomObject.type === 'root') {
         const rootnodes: Array<any> = gedcomObject?.children;
 
         // hardcode HEAD insert, it is not there
         if (strategy['HEAD']) {
-            const fn = strategy['HEAD'];
-            const getFilename = (filepath: string|undefined) => {
-                if(!filepath) {
-                    return '';
-                }
-                return filepath.substring(filepath.lastIndexOf('/')+1);
-            };
-            const filename = getFilename(inputFilename);
-            console.log("filename: ", filename);
-            const item = {
-                data: {
-                    owner_id: null,
-                    name: filename?.replace('.ged', ''),
-                    source_uid: filename,
-                }
-            };
-            const id = await fn(item, recordsByType, insertMode, mutation_fns);
-            mookuauhauId = id;
+            if(!mookuauhauId) {
+                const fn = strategy['HEAD'];
+                const getFilename = (filepath: string|undefined) => {
+                    if(!filepath) {
+                        return '';
+                    }
+                    return filepath.substring(filepath.lastIndexOf('/')+1);
+                };
+                const filename = getFilename(inputFilename);
+                console.log("filename: ", filename);
+                const item = {
+                    data: {
+                        owner_id: null,
+                        name: filename?.replace('.ged', ''),
+                        source_uid: filename,
+                    }
+                };
+                const id = await fn(item, recordsByType, insertMode, mutation_fns);
+                mookuauhauId = id;
+            }
+            else {
+                // probably queueload
+                console.log("probably queueload");
+            }
         }
 
         for (let index = 0; index < rootnodes.length; index++) {

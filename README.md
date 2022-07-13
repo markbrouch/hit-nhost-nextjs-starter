@@ -1,5 +1,4 @@
-
-#  mookuauhau-backend / gedcomloader
+# mookuauhau-backend / gedcomloader
 
 Backend code repository for the Moʻokūʻauhau project 
 
@@ -17,7 +16,7 @@ npm run load ../gedcom/mookuauhau.ged
 
 ```
 MUTATION_MODE=graphql
-GRAPHQL_ENDPOINT=https://something/v1/graphql
+HASURA_GRAPHQL_ENDPOINT=https://something/v1/graphql
 INSERT_MODE=true
 ```
 
@@ -30,7 +29,6 @@ INSERT_MODE=true
 - makuakane means this kanaka is a father in an ʻohana relationship
 - nakamalii is a list of children of this kanaka (ʻohana relationship)
 - namakua is a list of makua/parents this kanaka is a child of (other ʻohana relationships)
-
 
 ```
 query kanakaByXrefidRelations($xref_id: String!) {
@@ -347,11 +345,12 @@ query m_summary {
 }
 ```
 
-## Hasura + postgresql on docker 
+## Hasura + postgresql on docker
 
 https://hasura.io/docs/latest/graphql/core/deployment/deployment-guides/docker/
 
 quickstart:
+
 ```
 cd ./hasura-docker
 {edit .env}
@@ -360,9 +359,10 @@ docker-compose up -d
 docker ps
 ```
 
-Then you can connect to localhost:port for the Hasura endpoint as well as the postgresql you configured. 
+Then you can connect to localhost:port for the Hasura endpoint as well as the postgresql you configured.
 
 The .env under ./hasura-docker can look like this:
+
 ```
 HASURA_GRAPHQL_METADATA_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres
 PG_DATABASE_URL=postgres://postgres:postgrespassword@postgres:5432/postgres
@@ -373,7 +373,7 @@ HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key": "sharedsecretwithyourauthenti
 
 ## deploy to docker swarm
 
-This command will deploy to your local docker swarm stack, and process the .env file to the compose yml. 
+This command will deploy to your local docker swarm stack, and process the .env file to the compose yml.
 
 ```
 cd ./hasura-docker
@@ -381,10 +381,9 @@ docker stack deploy -c <(docker-compose config) mooku
 docker service ls
 ```
 
-
 ## Hasura mutations and metadata
 
-creating new database schema, by applying all migrations 
+creating new database schema, by applying all migrations
 
 ```
 cd ./hasura
@@ -392,17 +391,20 @@ hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret
 hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply
 ```
 
-apply only 2 migrations 
+apply only 2 migrations
+
 ```
 hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply --up 2
 ```
 
-rollback 2 migrations 
+rollback 2 migrations
+
 ```
 hasura migrate --endpoint https://your.hasura.endpoint --admin-secret yoursecret  --database-name default apply --down 2
 ```
 
 apply metadata from files to hasura instance (after viewing diff)
+
 ```
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret diff
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
@@ -451,4 +453,3 @@ DETACH DELETE n
 useful to make a new jwt secret
 
 `< /dev/urandom tr -dc \_A-Z-a-z-0-9 | head -c${1:-64};echo;`
-

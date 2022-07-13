@@ -523,6 +523,56 @@ export async function linkChildParentDirect(parentId: string, childId: string) {
 
 }
 
+export async function get_mookuauhau_queueload_list(role: string, jwt_token: string) : Promise<any|undefined> {
+    console.log(`get_mookuauhau_queueload_list(role, jwt_token)`);
+
+    const query = gql`
+        query getMookuauhauQueueLoadList {
+        mookuauhau(where: {load_status: {_eq: "new"}}) {
+            mookuauhau_id
+            name
+            filename
+            owner_id
+            file_id
+            load_status
+            create_timestamp
+        }
+        }
+    `;
+    const variables = {
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+export async function set_mookuauhau_loadstatus(mookuauhau_id: number, load_status: string, role: string, jwt_token: string) : Promise<void|undefined> {
+    console.log(`set_mookuauhau_loadstatus() ${mookuauhau_id} ${load_status}`);
+
+    const query = gql`
+        mutation set_mookuauhau_loadstatus($mookuauhau_id:Int!, $load_status:String!) {
+            update_mookuauhau_by_pk(pk_columns: {mookuauhau_id: $mookuauhau_id}, _set: {load_status: $load_status}) {
+                mookuauhau_id
+                load_status
+            }
+        }
+    `;
+    const variables = {
+        mookuauhau_id: mookuauhau_id,
+        load_status: load_status,
+    };
+
+    let addHeaders = {
+        "x-hasura-role": role
+    };
+
+    return await gqlRequest(query, variables, jwt_token, addHeaders);
+}
+
+
 export async function sleepytime() {
     const sleeptime = 0;
 
