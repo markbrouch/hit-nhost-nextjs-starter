@@ -43,7 +43,7 @@ import { transform } from "./lib/astadapter.js";
   } else {
     // process.stdout.write(output);
 
-    transform(parsed, mutationMode, insertMode, RECORD_LIMIT, infile);
+    transform(parsed, mutationMode, insertMode, RECORD_LIMIT, infile, undefined);
 
   }
 })();
