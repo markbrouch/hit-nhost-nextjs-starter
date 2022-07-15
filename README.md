@@ -5,6 +5,14 @@ Backend code repository for the Moʻokūʻauhau project
 - Hasura setup w/PostgreSQL migrations
 - GEDCOM file loader (command line)
 
+# system architecture
+
+![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
+
+# database schema
+
+![database schema diagram](static/mookuauhau-erd.png?raw=true)
+
 # Usage
 
 load a GEDCOM file on command line
@@ -418,14 +426,6 @@ apply metadata from files to hasura instance (after viewing diff)
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret diff
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
 ```
-
-# system architecture
-
-![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
-
-# database schema
-
-![database schema diagram](static/mookuauhau-erd.png?raw=true)
 
 # Neo4j - older import code
 
