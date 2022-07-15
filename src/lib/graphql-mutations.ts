@@ -13,10 +13,14 @@ export async function createGenealogy(genealogy: Genealogy, role: string, jwt_to
     let params: { [key: string]: any } = {
         name: genealogy.name,
         // xref_id: genealogy.xref_id,
+        visibility: 'private',
     };
 
     if (genealogy.source_uid) { params.filename = genealogy.source_uid; }
     if (genealogy.change_date) { params.change_date = genealogy.change_date; }
+    if (genealogy.visibility && genealogy.visibility === 'public') {
+        params.visibility = genealogy.visibility;
+    }
 
     const query = gql`
     mutation insertMookuauhau($object: mookuauhau_insert_input!) {
@@ -25,6 +29,7 @@ export async function createGenealogy(genealogy: Genealogy, role: string, jwt_to
             name
             owner_id
             filename
+            visibility
             create_timestamp
         }
     }
@@ -537,6 +542,7 @@ export async function get_mookuauhau_queueload_list(role: string, jwt_token: str
             owner_id
             file_id
             load_status
+            visibility
             create_timestamp
         }
         }

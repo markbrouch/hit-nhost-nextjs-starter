@@ -91,6 +91,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
                 if(index === 10) {
                     if (insertMode) {
+                        // only for neo4j
                         // await indexCreation();
                         const fn = mutation_fns['indexcreation'];
                         await fn();

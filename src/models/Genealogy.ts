@@ -7,6 +7,7 @@ export class Genealogy {
     source_uid: string|undefined;
 
     owner_id: string|undefined;
+    visibility: string|undefined;
 
     public constructor(init?:Partial<Genealogy>) {
         Object.assign(this, init);
