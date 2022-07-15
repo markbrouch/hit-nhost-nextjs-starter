@@ -2,8 +2,8 @@
 
 Backend code repository for the Moʻokūʻauhau project
 
-- Hasura setup w/PostgreSQL migrations
-- GEDCOM file loader (command line)
+- [Hasura](https://hasura.io/) setup w/PostgreSQL migrations
+- [GEDCOM](https://github.com/tmcw/gedcom) file loader (command line)
 
 # system architecture
 
@@ -21,7 +21,7 @@ load a GEDCOM file on command line
 npm run load ../gedcom/mookuauhau.ged
 ```
 
-load a GEDCOM file which was loaded to the backend queue, in load_status==new
+load a GEDCOM file which was loaded to the backend queue, in `mookuauhau.load_status == 'new'`
 
 ```
 npm run queueload
@@ -398,7 +398,9 @@ docker stack deploy -c <(docker-compose config) mooku
 docker service ls
 ```
 
-## Hasura mutations and metadata
+## Hasura migrations and metadata
+
+Reference: [Hasura Migrations & Metadata (CI/CD)](https://hasura.io/docs/latest/graphql/core/migrations/index/)
 
 creating new database schema, by applying all migrations
 
