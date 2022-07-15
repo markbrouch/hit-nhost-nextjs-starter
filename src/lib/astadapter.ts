@@ -147,7 +147,7 @@ async function header(item: Parent, recordsByType: { [key: string]: number }, in
     if (genealogy && insertMode) {
         // const rv = await createGenealogy(fam);
         const fn = mutation_fns['creategenealogy'];
-        const [ role, token ] = ['public', '']; // dummy
+        const [ role, token ] = ['admin', '']; // hardcoded
         const rv = await fn(genealogy, role, token);
         console.log("rv: ", rv);
 
@@ -206,7 +206,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
     if (person && insertMode && !DISABLE_PERSON_DEBUG) {
         // const rv = await createPerson(person);
         const fn = mutation_fns['createperson'];
-        const [ role, token ] = ['public', '']; // dummy
+        const [ role, token ] = ['admin', '']; // hardcoded
         console.log("mookuauhauId ", mookuauhauId);
         const rv = await fn(person, mookuauhauId, role, token);
 
@@ -261,7 +261,7 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
     if (fam && insertMode) {
         // const rv = await createFamily(fam);
         const fn = mutation_fns['createfamily'];
-        const [ role, token ] = ['public', '']; // dummy
+        const [ role, token ] = ['admin', '']; // hardcoded
         const rv = await fn(fam, mookuauhauId, role, token);
 
         await mutation_fns['sleepytime']();
