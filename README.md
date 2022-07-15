@@ -4,6 +4,7 @@ Backend code repository for the Moʻokūʻauhau project
 
 - [Hasura](https://hasura.io/) setup w/PostgreSQL migrations
 - [GEDCOM](https://github.com/tmcw/gedcom) file loader (command line)
+- optional JWT auth connected to mookuauhau.owner_id (developing first using [Nhost.io](https://nhost.io) [Hasura Auth](https://github.com/nhost/hasura-auth/))
 
 # system architecture
 
