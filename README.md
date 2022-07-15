@@ -8,7 +8,7 @@ Backend code repository for the Moʻokūʻauhau project
 
 # system architecture
 
-![software architecture diagram](static/moʻokūʻauhau-gedcom-loader.png?raw=true)
+![software architecture diagram](static/moʻokūʻauhau-backend-diagram.png?raw=true)
 
 # database schema
 
