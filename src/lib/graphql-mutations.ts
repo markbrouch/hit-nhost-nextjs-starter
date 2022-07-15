@@ -2,6 +2,7 @@ import { gqlRequest, gql } from './graphql-client.js';
 import { Family } from '../models/Family.js';
 import { Person } from '../models/Person.js';
 import { Genealogy } from '../models/Genealogy.js';
+import { Kamalii } from '../models/Kamalii.js';
 
 export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
     console.log("createGenealogy()");
@@ -181,17 +182,21 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
 
             console.log("fam.xref_id : ", fam.xref_id);
             console.log("c.xref_id: ", c.xref_id);
+            console.log("c._frel : ", c._frel);
+            console.log("c._mrel : ", c._mrel);
 
             if (fam.xref_id && c.xref_id) {
-                const kamalii = await get_kanaka_by_xrefid(mookuauhau_id, c.xref_id, role, jwt_token); 
-                console.log("kamalii: ", kamalii);
-                if(kamalii.kanaka.length > 0) {
+                const kamalii_kanaka = await get_kanaka_by_xrefid(mookuauhau_id, c.xref_id, role, jwt_token); 
+                console.log("kamalii_kanaka: ", kamalii_kanaka);
+
+                if(kamalii_kanaka.kanaka.length > 0) {
                     // first
-                    const kid = kamalii.kanaka[0]?.kanaka_id;
-                    const kid_xref_id = kamalii.kanaka[0]?.xref_id;
+                    const kid: number|undefined = kamalii_kanaka.kanaka[0]?.kanaka_id;
+                    const kid_xref_id = kamalii_kanaka.kanaka[0]?.xref_id;
                     console.log("kid: ", kid);
                     console.log("kid_xref_id: ", kid_xref_id);
-                    const crv = await famLinkChild(mookuauhau_id, fam.xref_id, kid_xref_id, role, jwt_token);
+
+                    const crv = await famLinkChild(mookuauhau_id, fam.xref_id, kid_xref_id, c._frel, c._mrel, role, jwt_token);
                 }
                 else {
                     console.log("kamalii not linked to kanaka record - not normal");
@@ -423,7 +428,7 @@ export async function get_ohana_by_xrefid(mookuauhau_id: number|undefined, xref_
     return await gqlRequest(query, variables, jwt_token, addHeaders);
 }
 
-export async function famLinkChild(mookuauhau_id: number|undefined, fam_id: string|undefined, person_id: string, role: string, jwt_token: string) : Promise<number|undefined> {
+export async function famLinkChild(mookuauhau_id: number|undefined, fam_id: string|undefined, person_id: string, frel: string|undefined, mrel: string|undefined, role: string, jwt_token: string) : Promise<number|undefined> {
     console.log(`famLinkChild() ${fam_id} ${person_id}`);
     let kamalii_id: number|undefined;
     try {
@@ -454,8 +459,8 @@ export async function famLinkChild(mookuauhau_id: number|undefined, fam_id: stri
                 object: {
                     kanaka_id: kanaka.kanaka_id,
                     ohana_id: ohana.ohana_id,
-                    // sex: kanaka?.sex,
-                    // xref_id: null,
+                    _frel: frel, 
+                    _mrel: mrel,
                 }
             };
         
@@ -606,7 +611,7 @@ export const mutation_fns: { [key: string]: Function } = {
     // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
     // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),
-    'linkfamchild': (mookuauhau_id: number|undefined, fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(mookuauhau_id, fam_id, person_id, role, jwt_token),
+    // 'linkfamchild': (mookuauhau_id: number|undefined, fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(mookuauhau_id, fam_id, person_id, role, jwt_token),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
     'indexcreation': () => console.log('no op'),
