@@ -32,8 +32,6 @@ insert_permissions:
         - mookuauhau_id
         - ohana_id
         - wahine_id
-        - birth_place
-        - burial_place
         - formal_name
         - marriage_date
         - marriage_place
@@ -52,8 +50,6 @@ select_permissions:
         - mookuauhau_id
         - ohana_id
         - wahine_id
-        - birth_place
-        - burial_place
         - formal_name
         - marriage_date
         - marriage_place
@@ -70,21 +66,19 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - ohana_id
-        - mookuauhau_id
-        - formal_name
-        - xref_id
-        - kane_id
-        - wahine_id
-        - marriage_date
         - marriage_date_dt
+        - kane_id
+        - mookuauhau_id
+        - ohana_id
+        - wahine_id
+        - formal_name
+        - marriage_date
         - marriage_place
-        - birth_place
         - residence
         - residence_place
-        - burial_place
-        - change_date
         - source_uid
+        - xref_id
+        - change_date
         - create_timestamp
       filter:
         mookuauhau:
@@ -99,8 +93,6 @@ update_permissions:
         - mookuauhau_id
         - ohana_id
         - wahine_id
-        - birth_place
-        - burial_place
         - formal_name
         - marriage_date
         - marriage_place

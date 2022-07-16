@@ -129,8 +129,6 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
     mutation insert_single_Ohana($object: ohana_insert_input!) {
         insert_ohana_one(object: $object) {
             ohana_id
-            birth_place
-            burial_place
             change_date
             formal_name
             kane_id
