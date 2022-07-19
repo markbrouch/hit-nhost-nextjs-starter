@@ -6,10 +6,9 @@ const NEO4J_PASS = process.env.NEO4J_PASS || '';
 
 let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
 
-import { Family } from '../models/Family.js';
-import { Genealogy } from '../models/Genealogy.js';
-import { Person } from '../models/Person.js';
-
+import { Family } from '../../models/Family.js';
+import { Genealogy } from '../../models/Genealogy.js';
+import { Person } from '../../models/Person.js';
 
 export async function createGenealogy(person: Genealogy) {
     console.log("createGenealogy()");

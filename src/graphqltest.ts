@@ -1,5 +1,5 @@
 
-import { createFamily, createPerson, linkPersons } from './lib/graphql-mutations.js';
+import { createFamily, createPerson, linkPersons } from './lib/mutations/graphql-mutations.js';
 import { Family } from './models/Family.js';
 import { Person } from './models/Person.js';
 

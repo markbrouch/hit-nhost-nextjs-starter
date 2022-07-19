@@ -1,0 +1,18 @@
+{
+    "type": "INDI",
+    "data": {
+        "formal_name": "INDIVIDUAL",
+        "xref_id": "@I1@",
+        "NAME": "/Kumuhonua (Kumuhonua-a-Palipalihia)/",
+        "NAME/SURNAME": "Kumuhonua (Kumuhonua-a-Palipalihia)",
+        "SEX": "M",
+        "BIRTH/DATE": "ABT 0320 BC",
+        "BIRTH/PLACE": "the Ololo Genealogy",
+        "_UID": "0A375B0E4D18D949B613AE76F38947A48568",
+        "@FAMILY_SPOUSE": "@F1@",
+        "@FAMILY_CHILD": "@F2@",
+        "CHANGE/DATE": "6 Mar 2010",
+        "CHANGE/DATE/TIME": "00:00:00"
+    },
+    "children": []
+}

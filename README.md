@@ -31,6 +31,7 @@ npm run queueload
 # load to hasura graphql database .env file entries
 
 ```
+MUTATION_MODE=graphql
 HASURA_GRAPHQL_ENDPOINT=https://something/v1/graphql
 HASURA_GRAPHQL_ADMIN_SECRET=notmysecret
 # for nhost.io auth+storage features
@@ -430,7 +431,7 @@ hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecre
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
 ```
 
-# Neo4j - older import code
+# Neo4j - alternative import code
 
 ## load to neo4j database .env file entries
 
@@ -439,7 +440,6 @@ MUTATION_MODE=neo4j
 NEO4J_ENDPOINT=bolt://localhost
 NEO4J_USER=yourusername
 NEO4J_PASS=yourpassword
-INSERT_MODE=true
 ```
 
 ## neo4j / Cypher examples
@@ -458,6 +458,22 @@ if testing loads and wanting to delete all...
 ```
 MATCH (n)
 DETACH DELETE n
+```
+
+# Mock import code
+
+This is for reading the GEDCOM file, and transforming but not inserting anywhere. Possibly exporintg to the output json file (3rd parameter).
+
+## .env file 
+
+```
+MUTATION_MODE=mock
+```
+
+## command
+
+```
+npm run load  ../gedcom/mookuauhau.ged ./output.json
 ```
 
 ## generate 64 char string

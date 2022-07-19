@@ -11,7 +11,8 @@ if(RECORD_LIMIT) {
   console.log(`RECORD_LIMIT: ${RECORD_LIMIT}`);
 }
 
-const insertMode = process.env.INSERT_MODE === 'false' ? false : true;
+// mutation mode
+const mutationMode = process.env.MUTATION_MODE || '';
 
 import * as Fs from "fs";
 import { parse } from 'parse-gedcom';
@@ -43,7 +44,7 @@ import { transform } from "./lib/astadapter.js";
   } else {
     // process.stdout.write(output);
 
-    transform(parsed, mutationMode, insertMode, RECORD_LIMIT, infile, undefined);
+    transform(parsed, mutationMode, RECORD_LIMIT, infile, undefined);
 
   }
 })();

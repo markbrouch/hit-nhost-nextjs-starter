@@ -1,6 +1,6 @@
 
 import { driver as neo4jdriver, auth as neo4jauth } from 'neo4j-driver';
-import { createPerson, linkPersons } from './lib/neo4j-mutations.js';
+import { createPerson, linkPersons } from './lib/mutations/neo4j-mutations.js';
 import { Person } from './models/Person.js';
 
 const NEO4J_ENDPOINT = process.env.NEO4J_ENDPOINT || 'bolt://localhost';

@@ -1,20 +1,32 @@
 
 import { Parent } from "unist";
-import { mutation_fns as neo4j_mutation_fns } from "./neo4j-mutations.js";
-import { mutation_fns as graphql_mutation_fns } from "./graphql-mutations.js";
+import { mutation_fns as neo4j_mutation_fns } from "./mutations/neo4j-mutations.js";
+import { mutation_fns as graphql_mutation_fns } from "./mutations/graphql-mutations.js";
+import { mutation_fns as mock_mutation_fns } from "./mutations/mock-mutations.js";
  
-export async function transform(gedcom: { [key: string]: any }, mutationMode: string, insertMode: boolean, recordLimit: number, inputFilename: string|undefined, mookuauhauId: number|undefined) {
+export async function transform(gedcom: { [key: string]: any }, mutationMode: string, recordLimit: number, inputFilename: string|undefined, mookuauhauId: number|undefined) {
     console.log(`transform()`);
 
     console.log(`mutationMode: ${mutationMode}`);
     console.log(`mookuauhauId: ${mookuauhauId}`);
+
+    let insertMode: boolean = false;
+
     // this allows us to plug in which mutation functions to use
     let mutation_fns: { [key: string]: Function }| undefined;
     if (mutationMode === 'graphql') {
         mutation_fns = graphql_mutation_fns;
+        insertMode = true;
+    }
+    else if (mutationMode === 'neo4j') {
+        mutation_fns = neo4j_mutation_fns;
+        insertMode = true;
+    }
+    else if (mutationMode === 'mock') {
+        mutation_fns = mock_mutation_fns;
     }
     else {
-        mutation_fns = neo4j_mutation_fns;
+        mutation_fns = mock_mutation_fns;
     }
 
     console.log(`insertMode: ${insertMode}`);

@@ -1,8 +1,8 @@
-import { gqlRequest, gql } from './graphql-client.js';
-import { Family } from '../models/Family.js';
-import { Person } from '../models/Person.js';
-import { Genealogy } from '../models/Genealogy.js';
-import { Kamalii } from '../models/Kamalii.js';
+import { gqlRequest, gql } from '../graphql-client.js';
+import { Family } from '../../models/Family.js';
+import { Person } from '../../models/Person.js';
+import { Genealogy } from '../../models/Genealogy.js';
+import { Kamalii } from '../../models/Kamalii.js';
 
 export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
     console.log("createGenealogy()");

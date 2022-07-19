@@ -8,16 +8,13 @@ if(RECORD_LIMIT) {
   console.log(`RECORD_LIMIT: ${RECORD_LIMIT}`);
 }
 
-// console.log(`process.env.INSERT_MODE: '${process.env.INSERT_MODE}'`);
-const insertMode = process.env.INSERT_MODE === 'false' ? false : true;
-
-// mutation mode - default to graphql
-const mutationMode = process.env.MUTATION_MODE === 'neo4j' ? 'neo4j' : 'graphql';
+// mutation mode
+const mutationMode = process.env.MUTATION_MODE || '';
 
 import * as Fs from "fs";
 import { parse, compact } from 'parse-gedcom';
 import { transform } from "./lib/astadapter.js";
-import { get_mookuauhau_queueload_list, set_mookuauhau_loadstatus } from "./lib/graphql-mutations.js";
+import { get_mookuauhau_queueload_list, set_mookuauhau_loadstatus } from "./lib/mutations/graphql-mutations.js";
 import fetch from 'node-fetch';
 import { nhost, NHOST_BACKEND_URL } from "./lib/nhost.js";
 
@@ -79,7 +76,7 @@ const downloadFile = (async (url: string, path: string) => {
       const compacted = compact(parsed);
 
       console.log(`process`);
-      await transform(parsed, mutationMode, insertMode, RECORD_LIMIT, filename, mitem.mookuauhau_id);
+      await transform(parsed, mutationMode, RECORD_LIMIT, filename, mitem.mookuauhau_id);
 
       await set_mookuauhau_loadstatus(mitem.mookuauhau_id, 'done', role, token);
 
