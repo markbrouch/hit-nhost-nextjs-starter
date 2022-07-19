@@ -1,6 +1,9 @@
 {
-    "type": "INDI",
-    "data": {
+  "type": "root",
+  "children": [
+    {
+      "type": "INDI",
+      "data": {
         "formal_name": "INDIVIDUAL",
         "xref_id": "@I1@",
         "NAME": "/Kumuhonua (Kumuhonua-a-Palipalihia)/",
@@ -13,6 +16,8 @@
         "@FAMILY_CHILD": "@F2@",
         "CHANGE/DATE": "6 Mar 2010",
         "CHANGE/DATE/TIME": "00:00:00"
-    },
-    "children": []
+      },
+      "children": []
+    }
+ ]
 }

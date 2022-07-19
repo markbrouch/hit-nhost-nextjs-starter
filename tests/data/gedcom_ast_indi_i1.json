@@ -1,129 +1,431 @@
 {
-    "type": "INDI",
-    "data": {
-        "formal_name": "INDIVIDUAL",
-        "xref_id": "@I1@"
-    },
+    "type": "root",
     "children": [
         {
-            "type": "NAME",
+            "type": "HEAD",
             "data": {
-                "formal_name": "NAME"
-            },
-            "value": "/Kumuhonua (Kumuhonua-a-Palipalihia)/",
-            "children": [
-                {
-                    "type": "SURN",
-                    "data": {
-                        "formal_name": "SURNAME"
-                    },
-                    "value": "Kumuhonua (Kumuhonua-a-Palipalihia)",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "type": "SEX",
-            "data": {
-                "formal_name": "SEX"
-            },
-            "value": "M",
-            "children": []
-        },
-        {
-            "type": "BIRT",
-            "data": {
-                "formal_name": "BIRTH"
+                "formal_name": "HEADER"
             },
             "children": [
                 {
-                    "type": "DATE",
+                    "type": "SOUR",
                     "data": {
-                        "formal_name": "DATE"
+                        "formal_name": "SOURCE"
                     },
-                    "value": "ABT 0320 BC",
+                    "value": "PAF",
+                    "children": [
+                        {
+                            "type": "NAME",
+                            "data": {
+                                "formal_name": "NAME"
+                            },
+                            "value": "Personal Ancestral File",
+                            "children": []
+                        },
+                        {
+                            "type": "VERS",
+                            "data": {
+                                "formal_name": "VERSION"
+                            },
+                            "value": "5.2.18.0",
+                            "children": []
+                        },
+                        {
+                            "type": "CORP",
+                            "data": {
+                                "formal_name": "CORPORATE"
+                            },
+                            "value": "The Church of Jesus Christ of Latter-day Saints",
+                            "children": [
+                                {
+                                    "type": "ADDR",
+                                    "data": {
+                                        "formal_name": "ADDRESS"
+                                    },
+                                    "value": "50 East North Temple Street\nSalt Lake City, UT 84150\nUSA",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "DEST",
+                    "data": {
+                        "formal_name": "DESTINATION"
+                    },
+                    "value": "PAF",
                     "children": []
                 },
                 {
-                    "type": "PLAC",
-                    "data": {
-                        "formal_name": "PLACE"
-                    },
-                    "value": "the Ololo Genealogy",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "type": "_UID",
-            "data": {
-                "custom_tag": true
-            },
-            "value": "0A375B0E4D18D949B613AE76F38947A48568",
-            "children": []
-        },
-        {
-            "type": "FAMS",
-            "data": {
-                "formal_name": "FAMILY_SPOUSE",
-                "pointer": "@F1@"
-            },
-            "children": []
-        },
-        {
-            "type": "FAMC",
-            "data": {
-                "formal_name": "FAMILY_CHILD",
-                "pointer": "@F2@"
-            },
-            "children": []
-        },
-        {
-            "type": "NOTE",
-            "data": {
-                "formal_name": "NOTE"
-            },
-            "value": "--------------------------------\nOLOLO GENEALOGY\n-------------------------------\nThere are many versions of the genealogies coming before the chief WAKEA and his wife PAPA. These genealogies are different from tradition to tradition, island to island. They are occasionally not in agreement and each island boasted that their very ancient genealogies before WAKEA and PAPA were correct and superior.  This is a generation from genealogy called \"OLOLO\".  It is a genealogy of the chiefs of Hawai'i Island (Big Island) and Maui.\n\nThe OLOLO begins with KUMUHONUA (k.) & HALOIHO (w.) and is 21 generations long, leading up to WAKEA and PAPA.\n\nThis is OLOLO genealogy generation No. 2.\n\nEach generation is computed at 22 years.\n\n- Dean P. Kekoolani, Editor",
-            "children": []
-        },
-        {
-            "type": "SOUR",
-            "data": {
-                "formal_name": "SOURCE",
-                "pointer": "@S1@"
-            },
-            "children": []
-        },
-        {
-            "type": "SOUR",
-            "data": {
-                "formal_name": "SOURCE",
-                "pointer": "@S2@"
-            },
-            "children": []
-        },
-        {
-            "type": "CHAN",
-            "data": {
-                "formal_name": "CHANGE"
-            },
-            "children": [
-                {
                     "type": "DATE",
                     "data": {
                         "formal_name": "DATE"
                     },
-                    "value": "6 Mar 2010",
+                    "value": "10 Jul 2011",
                     "children": [
                         {
                             "type": "TIME",
                             "data": {
                                 "formal_name": "TIME"
                             },
-                            "value": "00:00:00",
+                            "value": "00:01:42",
                             "children": []
                         }
                     ]
+                },
+                {
+                    "type": "FILE",
+                    "data": {
+                        "formal_name": "FILE"
+                    },
+                    "value": "something.ged",
+                    "children": []
+                },
+                {
+                    "type": "GEDC",
+                    "data": {
+                        "formal_name": "GEDCOM"
+                    },
+                    "children": [
+                        {
+                            "type": "VERS",
+                            "data": {
+                                "formal_name": "VERSION"
+                            },
+                            "value": "5.5",
+                            "children": []
+                        },
+                        {
+                            "type": "FORM",
+                            "data": {
+                                "formal_name": "FORMAT"
+                            },
+                            "value": "LINEAGE-LINKED",
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "type": "CHAR",
+                    "data": {
+                        "formal_name": "CHARACTER"
+                    },
+                    "value": "UTF-8",
+                    "children": []
+                },
+                {
+                    "type": "LANG",
+                    "data": {
+                        "formal_name": "LANGUAGE"
+                    },
+                    "value": "English",
+                    "children": []
+                },
+                {
+                    "type": "SUBM",
+                    "data": {
+                        "formal_name": "SUBMITTER",
+                        "pointer": "@SUB1@"
+                    },
+                    "children": []
+                }
+            ]
+        },
+        {
+            "type": "SUBM",
+            "data": {
+                "formal_name": "SUBMITTER",
+                "xref_id": "@SUB1@"
+            },
+            "children": [
+                {
+                    "type": "NAME",
+                    "data": {
+                        "formal_name": "NAME"
+                    },
+                    "value": "someone",
+                    "children": []
+                },
+                {
+                    "type": "ADDR",
+                    "data": {
+                        "formal_name": "ADDRESS"
+                    },
+                    "value": "some location",
+                    "children": [
+                        {
+                            "type": "CTRY",
+                            "data": {
+                                "formal_name": "COUNTRY"
+                            },
+                            "value": "USA",
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "type": "PHON",
+                    "data": {
+                        "formal_name": "PHONE"
+                    },
+                    "value": "310-562-7109",
+                    "children": []
+                },
+                {
+                    "type": "EMAIL",
+                    "data": {},
+                    "value": "some@email.asldkfj",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "type": "INDI",
+            "data": {
+                "formal_name": "INDIVIDUAL",
+                "xref_id": "@I1@"
+            },
+            "children": [
+                {
+                    "type": "NAME",
+                    "data": {
+                        "formal_name": "NAME"
+                    },
+                    "value": "/Kumuhonua (Kumuhonua-a-Palipalihia)/",
+                    "children": [
+                        {
+                            "type": "SURN",
+                            "data": {
+                                "formal_name": "SURNAME"
+                            },
+                            "value": "Kumuhonua (Kumuhonua-a-Palipalihia)",
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "type": "SEX",
+                    "data": {
+                        "formal_name": "SEX"
+                    },
+                    "value": "M",
+                    "children": []
+                },
+                {
+                    "type": "BIRT",
+                    "data": {
+                        "formal_name": "BIRTH"
+                    },
+                    "children": [
+                        {
+                            "type": "DATE",
+                            "data": {
+                                "formal_name": "DATE"
+                            },
+                            "value": "ABT 0320 BC",
+                            "children": []
+                        },
+                        {
+                            "type": "PLAC",
+                            "data": {
+                                "formal_name": "PLACE"
+                            },
+                            "value": "the Ololo Genealogy",
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "type": "_UID",
+                    "data": {
+                        "custom_tag": true
+                    },
+                    "value": "0A375B0E4D18D949B613AE76F38947A48568",
+                    "children": []
+                },
+                {
+                    "type": "FAMS",
+                    "data": {
+                        "formal_name": "FAMILY_SPOUSE",
+                        "pointer": "@F1@"
+                    },
+                    "children": []
+                },
+                {
+                    "type": "FAMC",
+                    "data": {
+                        "formal_name": "FAMILY_CHILD",
+                        "pointer": "@F2@"
+                    },
+                    "children": []
+                },
+                {
+                    "type": "NOTE",
+                    "data": {
+                        "formal_name": "NOTE"
+                    },
+                    "value": "--------------------------------\nOLOLO GENEALOGY\n-------------------------------\nThere are many versions of the genealogies coming before the chief WAKEA and his wife PAPA. These genealogies are different from tradition to tradition, island to island. They are occasionally not in agreement and each island boasted that their very ancient genealogies before WAKEA and PAPA were correct and superior.  This is a generation from genealogy called \"OLOLO\".  It is a genealogy of the chiefs of Hawai'i Island (Big Island) and Maui.\n\nThe OLOLO begins with KUMUHONUA (k.) & HALOIHO (w.) and is 21 generations long, leading up to WAKEA and PAPA.\n\nThis is OLOLO genealogy generation No. 2.\n\nEach generation is computed at 22 years.\n\n- Dean P. Kekoolani, Editor",
+                    "children": []
+                },
+                {
+                    "type": "SOUR",
+                    "data": {
+                        "formal_name": "SOURCE",
+                        "pointer": "@S1@"
+                    },
+                    "children": []
+                },
+                {
+                    "type": "SOUR",
+                    "data": {
+                        "formal_name": "SOURCE",
+                        "pointer": "@S2@"
+                    },
+                    "children": []
+                },
+                {
+                    "type": "CHAN",
+                    "data": {
+                        "formal_name": "CHANGE"
+                    },
+                    "children": [
+                        {
+                            "type": "DATE",
+                            "data": {
+                                "formal_name": "DATE"
+                            },
+                            "value": "6 Mar 2010",
+                            "children": [
+                                {
+                                    "type": "TIME",
+                                    "data": {
+                                        "formal_name": "TIME"
+                                    },
+                                    "value": "00:00:00",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "INDI",
+            "data": {
+                "formal_name": "INDIVIDUAL",
+                "xref_id": "@P4@"
+            },
+            "value": "",
+            "children": [
+                {
+                    "type": "BIRT",
+                    "data": {
+                        "formal_name": "BIRTH"
+                    },
+                    "value": "",
+                    "children": [
+                        {
+                            "type": "DATE",
+                            "data": {
+                                "formal_name": "DATE"
+                            },
+                            "value": "04 05 1971",
+                            "children": []
+                        },
+                        {
+                            "type": "PLAC",
+                            "data": {
+                                "formal_name": "PLACE"
+                            },
+                            "value": "Torrance, Los Angeles, California, USA",
+                            "children": []
+                        },
+                        {
+                            "type": "SOUR",
+                            "data": {
+                                "formal_name": "SOURCE",
+                                "pointer": "@S877939773@"
+                            },
+                            "children": [
+                                {
+                                    "type": "PAGE",
+                                    "data": {
+                                        "formal_name": "PAGE"
+                                    },
+                                    "value": "Birthdate: 4 May 1971; Birth County: Los Angeles",
+                                    "children": []
+                                },
+                                {
+                                    "type": "_APID",
+                                    "data": {
+                                        "custom_tag": true
+                                    },
+                                    "value": "1,5247::11826943",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "NAME",
+                    "data": {
+                        "formal_name": "NAME"
+                    },
+                    "value": "Raul N /Goodness/",
+                    "children": [
+                        {
+                            "type": "SOUR",
+                            "data": {
+                                "formal_name": "SOURCE",
+                                "pointer": "@S877939773@"
+                            },
+                            "children": [
+                                {
+                                    "type": "PAGE",
+                                    "data": {
+                                        "formal_name": "PAGE"
+                                    },
+                                    "value": "Birthdate: 4 May 1971; Birth County: Los Angeles",
+                                    "children": []
+                                },
+                                {
+                                    "type": "_APID",
+                                    "data": {
+                                        "custom_tag": true
+                                    },
+                                    "value": "1,5247::11826943",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "SEX",
+                    "data": {
+                        "formal_name": "SEX"
+                    },
+                    "value": "M",
+                    "children": []
+                },
+                {
+                    "type": "FAMC",
+                    "data": {
+                        "formal_name": "FAMILY_CHILD",
+                        "pointer": "@F123@"
+                    },
+                    "children": []
+                },
+                {
+                    "type": "FAMS",
+                    "data": {
+                        "formal_name": "FAMILY_SPOUSE",
+                        "pointer": "@F122@"
+                    },
+                    "children": []
                 }
             ]
         }

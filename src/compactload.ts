@@ -24,8 +24,9 @@ import { transform } from "./lib/astadapter.js";
   const outfile = outputfile || '';
   const inputStr = Fs.readFileSync(infile, "utf8");
 
-  const parsed = parse(inputStr);
-  const compacted = compact(parsed);
+  const ast = parse(inputStr);
+  // this turns parsed the AST / tree into a more compact version
+  const compacted = compact(ast);
 
   let output: string = "";
   output = JSON.stringify(compacted, null, 2);
@@ -35,7 +36,7 @@ import { transform } from "./lib/astadapter.js";
   } else {
     // process.stdout.write(output);
     
-    transform(parsed, mutationMode, RECORD_LIMIT, infile, undefined);
+    transform(ast, mutationMode, RECORD_LIMIT, infile, undefined);
 
   }
 })();

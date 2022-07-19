@@ -476,6 +476,10 @@ MUTATION_MODE=mock
 npm run load  ../gedcom/mookuauhau.ged ./output.json
 ```
 
+```
+npm run astload  ../gedcom/mookuauhau.ged ./output.json
+```
+
 ## generate 64 char string
 
 useful to make a new jwt secret

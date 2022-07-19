@@ -72,11 +72,11 @@ const downloadFile = (async (url: string, path: string) => {
       const inputStr = Fs.readFileSync(tmpgedcomfile, "utf8");
 
       console.log(`parse`);
-      const parsed = parse(inputStr);
-      const compacted = compact(parsed);
+      const ast = parse(inputStr);
+      const compacted = compact(ast);
 
       console.log(`process`);
-      await transform(parsed, mutationMode, RECORD_LIMIT, filename, mitem.mookuauhau_id);
+      await transform(ast, mutationMode, RECORD_LIMIT, filename, mitem.mookuauhau_id);
 
       await set_mookuauhau_loadstatus(mitem.mookuauhau_id, 'done', role, token);
 

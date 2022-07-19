@@ -30,11 +30,6 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
     }
 
     console.log(`insertMode: ${insertMode}`);
-    if (insertMode) {
-        // driver = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO4J_USER, NEO4J_PASS));
-        // neo4jsession = driver.session()
-    }
-
     
     const gedcomJson = JSON.stringify(gedcom);
     // console.log(gedcomJson);

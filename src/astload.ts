@@ -26,7 +26,7 @@ import { transform } from "./lib/astadapter.js";
   // mutation mode
   const mutationMode = process.env.MUTATION_MODE === 'graphql' ? 'graphql' : 'neo4j';
 
-  const parsed = parse(inputStr);
+  const ast = parse(inputStr);
 
   let type = "json";
 
@@ -34,7 +34,7 @@ import { transform } from "./lib/astadapter.js";
 
   switch (type) {
     case "json": {
-      output = JSON.stringify(parsed, null, 2);
+      output = JSON.stringify(ast, null, 2);
       break;
     }
   }
@@ -44,7 +44,7 @@ import { transform } from "./lib/astadapter.js";
   } else {
     // process.stdout.write(output);
 
-    transform(parsed, mutationMode, RECORD_LIMIT, infile, undefined);
+    transform(ast, mutationMode, RECORD_LIMIT, infile, undefined);
 
   }
 })();
