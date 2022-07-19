@@ -36,7 +36,7 @@ import { transform } from "./lib/astadapter.js";
   } else {
     // process.stdout.write(output);
     
-    transform(ast, mutationMode, RECORD_LIMIT, infile, undefined);
+    transform(compacted, mutationMode, RECORD_LIMIT, infile, undefined);
 
   }
 })();

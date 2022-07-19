@@ -15,7 +15,7 @@
     "t4j": "node -r dotenv/config ./dist/neo4jtest.js",
     "tgql": "node -r dotenv/config ./dist/graphqltest.js",
     "cli": "ts-node src/cli.ts",
-    "test": "uvu tests",
+    "test": "npm run build && uvu tests",
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf dist build",
     "ts-node": "ts-node"

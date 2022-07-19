@@ -18,6 +18,8 @@ export class Person {
     change_date: Date|undefined;
     source_uid: string|undefined;
 
+    note: string|undefined;
+
     public constructor(init?:Partial<Person>) {
         Object.assign(this, init);
     }

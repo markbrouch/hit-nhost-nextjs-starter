@@ -172,12 +172,13 @@ async function header(item: Parent, recordsByType: { [key: string]: number }, in
     return mookuauhauId;
 }
 
-async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+export async function individual(item: Parent, recordsByType: { [key: string]: number }, insertMode: boolean, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
 
-    const person: Person | undefined = itemToPerson(item);
+    // const person: Person | undefined = itemToPerson(item);
+    const person: Person | undefined = itemToPersonAst(item);
     console.log("person: ", person);
 
     // child records here are additional data 
@@ -234,7 +235,8 @@ async function family(item: Parent, recordsByType: { [key: string]: number }, in
     console.log(`family()`);
     console.log(item);
 
-    const fam: Family | undefined = itemToFamily(item);
+    // const fam: Family | undefined = itemToFamily(item);
+    const fam: Family | undefined = itemToFamilyAst(item);
     console.log("fam: ", fam);
 
     if (item.children) {
@@ -390,8 +392,8 @@ function itemToGenealogy(item: any) {
     return genealogy;
 }
 
-function itemToPerson(item: any) {
-    console.log(`itemToPerson()`);
+export function itemToPerson(item: any) {
+    console.log(`itemToPerson() [compact]`);
     if (item.type !== 'INDI') {
         return;
     }
@@ -455,6 +457,7 @@ function itemToPerson(item: any) {
 }
 
 function itemToFamily(item: any) {
+    console.log(`itemToFamily() [compact]`);
     if (item.type !== 'FAM') {
         return;
     }
@@ -497,5 +500,109 @@ function itemToFamily(item: any) {
     return fam;
 }
 
+function getChildByTypeName(item: any, type: string) {
+    return item?.children?.find((el:any) => el.type === type);
+}
 
+export function itemToPersonAst(item: any) {
+    console.log(`itemToPersonAst() [ast]`);
+    if (item.type !== 'INDI') {
+        return;
+    }
+
+    console.log("item: ", item);
+
+    const data = item?.data;
+
+    console.log("data: ", data);
+
+    console.log("item.children ", item.children);
+
+    const personChld = getChildByTypeName(item, 'NAME');
+    console.log("personChld: ", personChld);
+    const personName = personChld?.value;
+    console.log("personName: ", personName);
+
+    const birt = getChildByTypeName(item, 'BIRT');
+    const bury = getChildByTypeName(item, 'BURI');
+
+    const person = new Person({
+        formal_name: data?.formal_name,
+        xref_id: data?.xref_id,
+        name: personName,
+        sex: getChildByTypeName(item, 'SEX')?.value,
+        family_child: data['@FAMILY_CHILD'],
+        family_spouse: data['@FAMILY_SPOUSE'],
+
+        change_date: getChildByTypeName(item, 'CHAN')?.value,
+
+        name_surname: personChld?.children?.find((el:any) => el.type === 'SURN')?.value,
+        name_aka: personChld?.children?.find((el:any) => el.type === '_AKA')?.value,
+        birth_date: birt?.children?.find((el:any) => el.type === 'DATE')?.value,
+        birth_place: birt?.children?.find((el:any) => el.type === 'PLAC')?.value,
+        source_uid: data['_UID'],
+
+        burial_place: data['BURIAL/PLACE'], // ???
+
+        note: getChildByTypeName(item, 'NOTE')?.value,
+
+    });
+
+    const famc: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMC');
+    if (famc) {
+        person.family_child = [];
+        famc.forEach(() => {
+            person.family_child?.push();
+        });
+    }
+
+    const fams: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMS');
+    if (fams) {
+        person.family_spouse = [];
+        fams.forEach(() => {
+            person.family_spouse?.push();
+        });
+    }
+
+    // missing required fields
+    if (!person.name) {
+        person.name = person.xref_id;
+    }
+
+    return person;
+}
+
+function itemToFamilyAst(item: any) {
+    console.log(`itemToFamilyAst() [ast]`);
+    if (item.type !== 'FAM') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const fam = new Family({
+        formal_name: data?.formal_name,
+        xref_id: data?.xref_id,
+        _uid: getChildByTypeName(item, '_UID')?.value,
+        husband: getChildByTypeName(item, 'HUSB')?.value,
+        wife: getChildByTypeName(item, 'WIFE')?.value,
+        marriage_date: data['MARRIAGE/DATE'],
+        marriage_place: data['MARRIAGE/PLACE'],
+    });
+
+    const chils: Array<any> = item?.children?.filter((x:any) => x.type === 'CHIL');
+    if (chils) {
+        fam.children = [];
+        const childs: Array<any> = [];
+        childs.forEach((val, index) => {
+            fam.children?.push(new ChildRel({
+                xref_id: val?.data?.pointer,
+                _frel: getChildByTypeName(item, '_FREL')?.value,
+                _mrel: getChildByTypeName(item, '_MREL')?.value,
+            }));
+        });
+    }
+
+    return fam;
+}
 

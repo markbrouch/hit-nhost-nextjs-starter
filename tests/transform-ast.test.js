@@ -38,12 +38,12 @@ test('parse() ast straight json to person P4', async () => {
   assert.is(g_indi_i1.type, 'root');
 
   const i_child = g_indi_i1.children.find(x => x.type === 'INDI' && x.data.xref_id === '@P4@');
-  console.log(i_child);
+  console.log("ast i_child: ", i_child);
   assert.ok(i_child);
   assert.is(i_child?.type, 'INDI');
   assert.is(i_child?.data?.xref_id, '@P4@');
   const name = i_child?.children.find(x => x.type === 'NAME');
-  console.log(name);
+  console.log("name: ", name);
   assert.is(i_child?.children.find(x => x.type === 'NAME')?.value, "Raul N /Goodness/");
 
 });

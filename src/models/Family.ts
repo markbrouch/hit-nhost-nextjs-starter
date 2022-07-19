@@ -9,6 +9,8 @@ export class Family {
     marriage_date: string|undefined;
     marriage_place: string|undefined;
 
+    _uid: string|undefined;
+
     public constructor(init?:Partial<Family>) {
         Object.assign(this, init);
     }

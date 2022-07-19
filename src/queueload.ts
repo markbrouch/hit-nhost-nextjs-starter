@@ -73,7 +73,7 @@ const downloadFile = (async (url: string, path: string) => {
 
       console.log(`parse`);
       const ast = parse(inputStr);
-      const compacted = compact(ast);
+      // const compacted = compact(ast);
 
       console.log(`process`);
       await transform(ast, mutationMode, RECORD_LIMIT, filename, mitem.mookuauhau_id);
