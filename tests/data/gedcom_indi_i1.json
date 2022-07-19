@@ -1,0 +1,131 @@
+{
+    "type": "INDI",
+    "data": {
+        "formal_name": "INDIVIDUAL",
+        "xref_id": "@I1@"
+    },
+    "children": [
+        {
+            "type": "NAME",
+            "data": {
+                "formal_name": "NAME"
+            },
+            "value": "/Kumuhonua (Kumuhonua-a-Palipalihia)/",
+            "children": [
+                {
+                    "type": "SURN",
+                    "data": {
+                        "formal_name": "SURNAME"
+                    },
+                    "value": "Kumuhonua (Kumuhonua-a-Palipalihia)",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "type": "SEX",
+            "data": {
+                "formal_name": "SEX"
+            },
+            "value": "M",
+            "children": []
+        },
+        {
+            "type": "BIRT",
+            "data": {
+                "formal_name": "BIRTH"
+            },
+            "children": [
+                {
+                    "type": "DATE",
+                    "data": {
+                        "formal_name": "DATE"
+                    },
+                    "value": "ABT 0320 BC",
+                    "children": []
+                },
+                {
+                    "type": "PLAC",
+                    "data": {
+                        "formal_name": "PLACE"
+                    },
+                    "value": "the Ololo Genealogy",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "type": "_UID",
+            "data": {
+                "custom_tag": true
+            },
+            "value": "0A375B0E4D18D949B613AE76F38947A48568",
+            "children": []
+        },
+        {
+            "type": "FAMS",
+            "data": {
+                "formal_name": "FAMILY_SPOUSE",
+                "pointer": "@F1@"
+            },
+            "children": []
+        },
+        {
+            "type": "FAMC",
+            "data": {
+                "formal_name": "FAMILY_CHILD",
+                "pointer": "@F2@"
+            },
+            "children": []
+        },
+        {
+            "type": "NOTE",
+            "data": {
+                "formal_name": "NOTE"
+            },
+            "value": "--------------------------------\nOLOLO GENEALOGY\n-------------------------------\nThere are many versions of the genealogies coming before the chief WAKEA and his wife PAPA. These genealogies are different from tradition to tradition, island to island. They are occasionally not in agreement and each island boasted that their very ancient genealogies before WAKEA and PAPA were correct and superior.  This is a generation from genealogy called \"OLOLO\".  It is a genealogy of the chiefs of Hawai'i Island (Big Island) and Maui.\n\nThe OLOLO begins with KUMUHONUA (k.) & HALOIHO (w.) and is 21 generations long, leading up to WAKEA and PAPA.\n\nThis is OLOLO genealogy generation No. 2.\n\nEach generation is computed at 22 years.\n\n- Dean P. Kekoolani, Editor",
+            "children": []
+        },
+        {
+            "type": "SOUR",
+            "data": {
+                "formal_name": "SOURCE",
+                "pointer": "@S1@"
+            },
+            "children": []
+        },
+        {
+            "type": "SOUR",
+            "data": {
+                "formal_name": "SOURCE",
+                "pointer": "@S2@"
+            },
+            "children": []
+        },
+        {
+            "type": "CHAN",
+            "data": {
+                "formal_name": "CHANGE"
+            },
+            "children": [
+                {
+                    "type": "DATE",
+                    "data": {
+                        "formal_name": "DATE"
+                    },
+                    "value": "6 Mar 2010",
+                    "children": [
+                        {
+                            "type": "TIME",
+                            "data": {
+                                "formal_name": "TIME"
+                            },
+                            "value": "00:00:00",
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

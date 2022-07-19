@@ -15,7 +15,7 @@
     "t4j": "node -r dotenv/config ./dist/neo4jtest.js",
     "tgql": "node -r dotenv/config ./dist/graphqltest.js",
     "cli": "ts-node src/cli.ts",
-    "test": "jest",
+    "test": "uvu tests",
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf dist build",
     "ts-node": "ts-node"
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.2",
+    "uvu": "^0.5.6"
   }
 }
