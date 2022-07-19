@@ -173,6 +173,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
     const person: Person | undefined = itemToPerson(item);
     console.log("person: ", person);
 
+    // child records here are additional data 
     if (item.children) {
         item.children.forEach((child: Node<Data>, index: number) => {
             console.log("child: ", child);
@@ -189,6 +190,7 @@ async function individual(item: Parent, recordsByType: { [key: string]: number }
             //     });
             // }
 
+            // BIRT|NAME|SEX|FAMC|FAMS
             const typeKey = child.type + '.' + child?.data?.formal_name;
             if (recordsByType[typeKey] > 0) {
                 // console.log("later recordsByType[typeKey] ++");
@@ -387,14 +389,24 @@ function itemToPerson(item: any) {
         return;
     }
 
+    console.log("item: ", item);
+
     const data = item?.data;
 
     console.log("data: ", data);
 
+    console.log("item.children ", item.children);
+
+    const personNameElement = item?.children?.find((el:any) => el.type === 'NAME');
+    console.log("personNameElement ", personNameElement);
+
+    const personName = item?.children?.find((el:any) => el.type === 'NAME')?.value || data?.NAME;
+    console.log("item?.children?.find((el:any) => el.type === 'NAME')?.value", item?.children?.find((el:any) => el.type == 'NAME')?.value);
+
     const person = new Person({
         formal_name: data?.formal_name,
         xref_id: data?.xref_id,
-        name: data?.NAME,
+        name: personName,
         sex: data?.SEX,
         family_child: data['@FAMILY_CHILD'],
         family_spouse: data['@FAMILY_SPOUSE'],
