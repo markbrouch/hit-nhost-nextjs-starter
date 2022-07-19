@@ -580,21 +580,23 @@ function itemToFamilyAst(item: any) {
 
     const data = item?.data;
 
+    const marr = getChildByTypeName(item, 'MARR');
+
     const fam = new Family({
         formal_name: data?.formal_name,
         xref_id: data?.xref_id,
         _uid: getChildByTypeName(item, '_UID')?.value,
-        husband: getChildByTypeName(item, 'HUSB')?.value,
-        wife: getChildByTypeName(item, 'WIFE')?.value,
-        marriage_date: data['MARRIAGE/DATE'],
-        marriage_place: data['MARRIAGE/PLACE'],
+        husband: getChildByTypeName(item, 'HUSB')?.data?.pointer,
+        wife: getChildByTypeName(item, 'WIFE')?.data?.pointer,
+        marriage_date: getChildByTypeName(marr, 'DATE')?.data?.value,
+        marriage_place: getChildByTypeName(marr, 'PLAC')?.data?.value,
     });
 
     const chils: Array<any> = item?.children?.filter((x:any) => x.type === 'CHIL');
+    console.log(`chils.length = ${chils.length}`);
     if (chils) {
         fam.children = [];
-        const childs: Array<any> = [];
-        childs.forEach((val, index) => {
+        chils.forEach((val, index) => {
             fam.children?.push(new ChildRel({
                 xref_id: val?.data?.pointer,
                 _frel: getChildByTypeName(item, '_FREL')?.value,
