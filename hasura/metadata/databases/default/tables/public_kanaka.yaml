@@ -92,25 +92,28 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - sex
         - kanaka_id
         - mookuauhau_id
-        - name
-        - formal_name
-        - xref_id
-        - sex
-        - _uid
-        - name_surname
-        - name_aka
-        - birth_date
-        - birth_date_dt
-        - birth_place
-        - family_spouse
         - family_child
+        - family_spouse
+        - birth_date
+        - birth_place
+        - burial_place
+        - death_date
+        - death_place
+        - formal_name
+        - name
+        - name_aka
+        - name_surname
         - residence
         - residence_place
-        - burial_place
-        - change_date
         - source_uid
+        - _uid
+        - xref_id
+        - birth_date_dt
+        - death_date_dt
+        - change_date
         - create_timestamp
       filter:
         mookuauhau:

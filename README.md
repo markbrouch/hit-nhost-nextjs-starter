@@ -56,8 +56,6 @@ query kanakaByXrefidRelations($xref_id: String!) {
     name
     sex
     residence
-    birth_date
-    birth_place
     xref_id
     mookuauhau_id
     namakua {
@@ -76,6 +74,8 @@ query kanakaByXrefidRelations($xref_id: String!) {
           xref_id
           name
         }
+        residence
+        residence_place
       }
     }
     makuakane {
@@ -120,6 +120,18 @@ query kanakaByXrefidRelations($xref_id: String!) {
         }
       }
     }
+    birth_date
+    birth_date_dt
+    birth_place
+    death_date
+    death_date_dt
+    death_place
+    burial_place
+    formal_name
+    name_aka
+    name_surname
+    residence_place
+    source_uid
   }
 }
 ```
