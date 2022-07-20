@@ -80,8 +80,13 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                 if (strategy[item?.type]) {
                     console.log(`type ${item.type} supported.`);
 
-                    const fn = strategy[item.type];
-                    const id = await fn(item, recordsByType, insertMode, mutation_fns, mookuauhauId);
+                    if(item.type === 'HEAD' && mookuauhauId && mookuauhauId > 0) {
+                        console.log(`skip creating HEAD , already exists`);
+                    }
+                    else {
+                        const fn = strategy[item.type];
+                        const id = await fn(item, recordsByType, insertMode, mutation_fns, mookuauhauId);
+                    }
                 }
                 else {
                     console.log(`type ${item.type} not supported.`);

@@ -1,8 +1,8 @@
 
-export function parseGedcomDate(dateString: string|undefined) : Date|undefined {
+export function parseGedcomDate(dateString: string|undefined) : Date|string|undefined {
     if(!dateString) { return; }
 
-    let date: Date|undefined;
+    let date: Date|string|undefined;
 
     let dstring = dateString;
     let dateEpoch: number;
@@ -23,14 +23,25 @@ export function parseGedcomDate(dateString: string|undefined) : Date|undefined {
         const yearBc = 0 - parseInt( myArray[0] );
         console.log("yearBc ", yearBc);
         dateEpoch = new Date(0).setUTCFullYear(yearBc);
+
+        // TEMP TODO  - BC will be null
+        dateEpoch = new Date(0).setUTCFullYear(0);
+
+        // date = new Date(dateEpoch);
+        date = undefined;
+
+
+        // https://github.com/mauricio/postgresql-async/issues/248
+        // use 'YYYY BC' for postgresql
+        // date = `${yearBc} BC`;
     }
     else {
         dateEpoch = Date.parse(dateString);
+        date = new Date(dateEpoch);
     }
-    date = new Date(dateEpoch);
 
     if(dateEpoch && date) {
-        console.log(`${dstring} -> ${date?.toISOString()}`);
+        console.log(`${dstring} -> ${date}`);
     }
     else {
         console.log(`${dstring} -> null`);
