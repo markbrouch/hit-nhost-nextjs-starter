@@ -272,14 +272,12 @@ result:
 ## query filter by field
 
 ```
-query kanakaSpecificBirthplace($mookuauhau_id:Int!, $birth_place:String!) {
-  kanaka(where: {mookuauhau_id: {_eq: $mookuauhau_id}}, birth_place: {_eq: $birth_place}}) {
+query kanakaSpecificBirthplace($mookuauhau_id: Int!, $birth_place:String!) {
+  kanaka(where: {mookuauhau_id: {_eq: $mookuauhau_id}, birth_place: {_eq: $birth_place}}) {
     kanaka_id
     name
     sex
     residence
-    birth_date
-    birth_place
     xref_id
     mookuauhau_id
     namakua {
@@ -327,6 +325,13 @@ query kanakaSpecificBirthplace($mookuauhau_id:Int!, $birth_place:String!) {
         }
       }
     }
+    birth_date
+    birth_date_dt
+    birth_place
+    death_date
+    death_date_dt
+    death_place
+    burial_place
   }
 }
 ```
@@ -429,6 +434,31 @@ apply metadata from files to hasura instance (after viewing diff)
 ```
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret diff
 hasura metadata --endpoint https://your.hasura.endpoint --admin-secret yoursecret apply
+```
+
+### delete a bad/partial load
+
+```
+mutation delete_mookuauhau($mookuauhau_id: Int!) {
+  delete_kanaka(where: {mookuauhau_id: {_eq: $mookuauhau_id}}) {
+    affected_rows
+  }
+  delete_ohana(where: {mookuauhau_id: {_eq: $mookuauhau_id}}) {
+    affected_rows
+  }
+  update_mookuauhau_by_pk(pk_columns: {mookuauhau_id: $mookuauhau_id}, _set: {load_status: "new"}) {
+    file_id
+    filename
+    load_status
+    name
+    owner_id
+    visibility
+  }
+}
+```
+
+```
+{"mookuauhau_id": 5}
 ```
 
 # Neo4j - alternative import code

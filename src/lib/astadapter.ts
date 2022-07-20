@@ -524,6 +524,7 @@ export function itemToPersonAst(item: any) {
     console.log("personName: ", personName);
 
     const birt = getChildByTypeName(item, 'BIRT');
+    const deat = getChildByTypeName(item, 'DEAT');
     const bury = getChildByTypeName(item, 'BURI');
 
     const person = new Person({
@@ -540,11 +541,13 @@ export function itemToPersonAst(item: any) {
         name_aka: personChld?.children?.find((el:any) => el.type === '_AKA')?.value,
         birth_date: birt?.children?.find((el:any) => el.type === 'DATE')?.value,
         birth_place: birt?.children?.find((el:any) => el.type === 'PLAC')?.value,
+        death_date: deat?.children?.find((el:any) => el.type === 'DATE')?.value,
+        death_place: deat?.children?.find((el:any) => el.type === 'PLAC')?.value,
         source_uid: data['_UID'],
 
-        burial_place: data['BURIAL/PLACE'], // ???
+        burial_place: bury?.children?.find((el:any) => el.type === 'PLAC')?.value,
 
-        note: getChildByTypeName(item, 'NOTE')?.value,
+        // note: getChildByTypeName(item, 'NOTE')?.value,
 
     });
 
@@ -599,8 +602,8 @@ function itemToFamilyAst(item: any) {
         chils.forEach((val, index) => {
             fam.children?.push(new ChildRel({
                 xref_id: val?.data?.pointer,
-                _frel: getChildByTypeName(item, '_FREL')?.value,
-                _mrel: getChildByTypeName(item, '_MREL')?.value,
+                _frel: getChildByTypeName(val, '_FREL')?.value,
+                _mrel: getChildByTypeName(val, '_MREL')?.value,
             }));
         });
     }

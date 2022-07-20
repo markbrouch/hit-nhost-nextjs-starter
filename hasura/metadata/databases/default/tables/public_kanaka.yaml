@@ -37,6 +37,7 @@ insert_permissions:
       columns:
         - sex
         - birth_date_dt
+        - death_date_dt
         - kanaka_id
         - mookuauhau_id
         - family_child
@@ -44,6 +45,8 @@ insert_permissions:
         - birth_date
         - birth_place
         - burial_place
+        - death_date
+        - death_place
         - formal_name
         - name
         - name_aka
@@ -61,6 +64,7 @@ select_permissions:
       columns:
         - sex
         - birth_date_dt
+        - death_date_dt
         - kanaka_id
         - mookuauhau_id
         - family_child
@@ -68,6 +72,8 @@ select_permissions:
         - birth_date
         - birth_place
         - burial_place
+        - death_date
+        - death_place
         - formal_name
         - name
         - name_aka
@@ -116,6 +122,7 @@ update_permissions:
       columns:
         - sex
         - birth_date_dt
+        - death_date_dt
         - kanaka_id
         - mookuauhau_id
         - family_child
@@ -123,6 +130,8 @@ update_permissions:
         - birth_date
         - birth_place
         - burial_place
+        - death_date
+        - death_place
         - formal_name
         - name
         - name_aka

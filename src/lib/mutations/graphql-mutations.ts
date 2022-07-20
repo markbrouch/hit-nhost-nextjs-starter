@@ -3,6 +3,7 @@ import { Family } from '../../models/Family.js';
 import { Person } from '../../models/Person.js';
 import { Genealogy } from '../../models/Genealogy.js';
 import { Kamalii } from '../../models/Kamalii.js';
+import { parseGedcomDate } from '../utils.js';
 
 export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
     console.log("createGenealogy()");
@@ -63,6 +64,8 @@ export async function createPerson(person: Person, mookuauhauId: number|undefine
     if (person.formal_name) { params.formal_name = person.formal_name; }
     if (person.birth_date) { params.birth_date = person.birth_date; }
     if (person.birth_place) { params.birth_place = person.birth_place; }
+    if (person.death_date) { params.death_date = person.death_date; }
+    if (person.death_place) { params.death_place = person.death_place; }
     if (person.burial_place) { params.burial_place = person.burial_place; }
     if (person.change_date) { params.change_date = person.change_date; }
     if (person.name_surname) { params.name_surname = person.name_surname; }
@@ -70,6 +73,13 @@ export async function createPerson(person: Person, mookuauhauId: number|undefine
     if (person.residence_place) { params.residence_place = person.residence_place; }
 
     if (mookuauhauId) { params.mookuauhau_id = mookuauhauId; }
+
+    if (parseGedcomDate(person.birth_date)) { 
+        params.birth_date_dt = parseGedcomDate(person.birth_date);
+    }
+    if (parseGedcomDate(person.death_date)) { 
+        params.death_date_dt = parseGedcomDate(person.death_date);
+    }
 
     const query = gql`
     mutation insert_single_Person($object: kanaka_insert_input!) {
