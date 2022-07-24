@@ -6,6 +6,26 @@ Backend code repository for the Moʻokūʻauhau project
 - [GEDCOM](https://github.com/tmcw/gedcom) file loader (command line)
 - optional JWT auth connected to mookuauhau.owner_id (developing first using [Nhost.io](https://nhost.io) [Hasura Auth](https://github.com/nhost/hasura-auth/))
 
+# Overview
+
+The kuleana for the mookuauhau-backend project repository is:
+- Provide a data store for genealogy data
+- Make the data available via a GraphQL API for various frontend visualization UI/UX
+- Load GEDCOM file(s) into the data store
+- Allow for future security permissions integrations
+- Allow for possible private instances, or also multi-tenant dataset in the same database. 
+
+We have a core implementation available for use in the Hawaiians in Tech 2022 Hackathon, but which could be a base for future work. 
+
+Backend tech stack:
+- Hasura GraphQL engine
+- PostgreSQL relational db
+- NodeJS TypeScript GEDCOM file loader via graphql api
+
+These may be run against either local instances running in Docker containers, or else run against hosted instances ( Hasura Cloud, Nhost.io, etc. )
+
+Alternatively, Neo4j can be used as an alternative backend, for schemaless graph database. It has more built-in data visualization tools, but is more reliant on the Cypher query language. 
+
 # system architecture
 
 ![software architecture diagram](static/moʻokūʻauhau-backend-diagram.png?raw=true)
