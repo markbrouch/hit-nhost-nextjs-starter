@@ -1,4 +1,4 @@
-# mookuauhau-backend / gedcomloader
+# mookuauhau-backend + gedcomloader
 
 Backend code repository for the Moʻokūʻauhau project
 
@@ -9,22 +9,24 @@ Backend code repository for the Moʻokūʻauhau project
 # Overview
 
 The kuleana for the mookuauhau-backend project repository is:
+
 - Provide a data store for genealogy data
 - Make the data available via a GraphQL API for various frontend visualization UI/UX
 - Load GEDCOM file(s) into the data store
 - Allow for future security permissions integrations
-- Allow for possible private instances, or also multi-tenant dataset in the same database. 
+- Allow for possible private instances, or also multi-tenant dataset in the same database.
 
-We have a core implementation available for use in the Hawaiians in Tech 2022 Hackathon, but which could be a base for future work. 
+We have a core implementation available for use in the Hawaiians in Tech 2022 Hackathon, but which could be a base for future work.
 
 Backend tech stack:
+
 - Hasura GraphQL engine
 - PostgreSQL relational db
 - NodeJS TypeScript GEDCOM file loader via graphql api
 
 These may be run against either local instances running in Docker containers, or else run against hosted instances ( Hasura Cloud, Nhost.io, etc. )
 
-Alternatively, Neo4j can be used as an alternative backend, for schemaless graph database. It has more built-in data visualization tools, but is more reliant on the Cypher query language. 
+Alternatively, Neo4j can be used as an alternative backend, for schemaless graph database. It has more built-in data visualization tools, but is more reliant on the Cypher query language.
 
 # system architecture
 
@@ -36,17 +38,41 @@ Alternatively, Neo4j can be used as an alternative backend, for schemaless graph
 
 # Usage
 
-load a GEDCOM file on command line
+## load a GEDCOM file on command line
 
 ```
 npm run load ../gedcom/mookuauhau.ged
 ```
 
-load a GEDCOM file which was loaded to the backend queue, in `mookuauhau.load_status == 'new'`
+When the 'load' script is run:
+
+- runs the 'parse-gedcom' parse() on it to AST object
+- sends the AST object to a transform() function to map to genealogy objects
+- objects process to the configured 'mutations' adapter: 'graphql', 'neo4j', or 'mock'.
+- creates mookuauhau, kanaka, ohana, kamalii records from the objects.
+
+## load a GEDCOM file which was loaded to the backend queue, in `mookuauhau.load_status == 'new'`
 
 ```
 npm run queueload
 ```
+
+Note: queue load requires Nhost backend, and the file is uploaded using the [demo-mookuauhau-adminlite](https://github.com/hawaiiansintech/demo-mookuauhau-adminlite) web app.
+
+- The user registers/logs into the admin ui,
+- uploads a GEDCOM file (stored on Nhost storage)
+- a 'mookuauhau' record is created, with owner_id set to the Nhost user_id, with load_status == 'new'
+
+When the 'queueload' script is run:
+
+- reads the next mookuauhau record w/load_status == 'new'
+- updates mookuauhau.load_status = 'loading'
+- downloads the corresponding GEDCOM file from Nhost storage
+- runs the 'parse-gedcom' parse() on it to AST object
+- sends the AST object to a transform() function to map to genealogy objects
+- objects process to the configured 'mutations' adapter: 'graphql', 'neo4j', or 'mock'.
+- creates kanaka, ohana, kamalii records from the objects.
+- updates mookuauhau.load_status = 'done'
 
 # load to hasura graphql database .env file entries
 
@@ -401,7 +427,16 @@ query m_summary {
 }
 ```
 
-## Hasura + postgresql on docker
+# Standing up the backend
+
+## Hasura + postgresql on Nhost.io
+
+To use a hosted Hasura backend plus auth and storage, you can use the
+free 'Starter' level at [Nhost.io](https://app.nhost.io/).
+
+Once you create it, you can access the Hasura instance via endpoint URL and admin secret.
+
+## Hasura + postgresql on docker locally
 
 https://hasura.io/docs/latest/graphql/core/deployment/deployment-guides/docker/
 
@@ -417,6 +452,12 @@ docker ps
 
 Then you can connect to localhost:port for the Hasura endpoint as well as the postgresql you configured.
 
+defaults on local Docker:
+
+- graphql endpoint: http://localhost:8021/v1/graphql
+- Hasura Console: http://localhost:8021
+- PostgreSQL connection: postgres://postgres:postgrespassword@localhost:5441/
+
 The .env under ./hasura-docker can look like this:
 
 ```
@@ -427,9 +468,11 @@ JWT_SECRET_KEY=sharedsecretwithyourauthenticationprovider
 HASURA_GRAPHQL_JWT_SECRET='{"type":"HS256", "key": "sharedsecretwithyourauthenticationprovider"}'
 ```
 
-## deploy to docker swarm
+## deploy to docker swarm locally
 
 This command will deploy to your local docker swarm stack, and process the .env file to the compose yml.
+
+I started using [Docker Swarm](https://docs.docker.com/engine/swarm/) locally bc my postgresql containers were stomping over each other 🤷
 
 ```
 cd ./hasura-docker
@@ -526,7 +569,7 @@ DETACH DELETE n
 
 This is for reading the GEDCOM file, and transforming but not inserting anywhere. Possibly exporintg to the output json file (3rd parameter).
 
-## .env file 
+## .env file
 
 ```
 MUTATION_MODE=mock
@@ -538,12 +581,8 @@ MUTATION_MODE=mock
 npm run load  ../gedcom/mookuauhau.ged ./output.json
 ```
 
-```
-npm run astload  ../gedcom/mookuauhau.ged ./output.json
-```
+# extra notes
 
-## generate 64 char string
-
-useful to make a new jwt secret
+Useful bash one-liner to make a new JWT secret - random 64-char string. The Hasura server authorization must have a shared secret with the Authentication provider (Nhost, Auth0, Google Firebase, etc.).
 
 `< /dev/urandom tr -dc \_A-Z-a-z-0-9 | head -c${1:-64};echo;`
