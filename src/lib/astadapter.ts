@@ -29,8 +29,6 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
     // console.log(gedcomJson);
     const gedcomObject: { [key: string]: any } = JSON.parse(gedcomJson);
 
-    const recordsByType: { [key: string]: number } = {};
-
     if (gedcomObject.type === 'root') {
         const rootnodes: Array<any> = gedcomObject?.children;
 
@@ -53,7 +51,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                         source_uid: filename,
                     }
                 };
-                const id = await fn(item, recordsByType, mutation_fns);
+                const id = await fn(item, mutation_fns);
                 mookuauhauId = id;
             }
             else {
@@ -81,7 +79,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
                     else {
                         // get the function to process this type based on the mutation mode setting
                         const fn = strategy[item.type];
-                        const id = await fn(item, recordsByType, mutation_fns, mookuauhauId);
+                        const id = await fn(item, mutation_fns, mookuauhauId);
                     }
                 }
                 else {
@@ -121,9 +119,9 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 }
 
 const strategy: { [key: string]: any } = {
-    'HEAD': (item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }) => header(item, recordsByType, mutation_fns),
-    'INDI': (item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => individual(item, recordsByType, mutation_fns, mookuauhauId),
-    'FAM': (item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => family(item, recordsByType, mutation_fns, mookuauhauId),
+    'HEAD': (item: Parent, mutation_fns: { [key: string]: Function }) => header(item, mutation_fns),
+    'INDI': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => individual(item, mutation_fns, mookuauhauId),
+    'FAM': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => family(item, mutation_fns, mookuauhauId),
     'REPO': (item: Parent) => repository(item),
     'SOUR': (item: Parent) => source(item),
     'TRLR': (item: Parent) => trailer(item),
@@ -142,7 +140,7 @@ const strategy: { [key: string]: any } = {
 // const strategy = strategy_neo4j;
 // const strategy = strategy_graphql;
 
-async function header(item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }) {
+async function header(item: Parent, mutation_fns: { [key: string]: Function }) {
     console.log(`header()`);
 
     console.log(`item: `, item);
@@ -175,7 +173,7 @@ async function header(item: Parent, recordsByType: { [key: string]: number }, mu
     return mookuauhauId;
 }
 
-export async function individual(item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+export async function individual(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`=======================================================================`);
     console.log(`individual()`);
     console.log(item);
@@ -236,7 +234,7 @@ export async function individual(item: Parent, recordsByType: { [key: string]: n
 
 }
 
-async function family(item: Parent, recordsByType: { [key: string]: number }, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+async function family(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`family()`);
     console.log(item);
 
@@ -312,6 +310,7 @@ import { ChildRel } from "../models/ChildRel.js";
 import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
 import { Genealogy } from "../models/Genealogy.js";
+import { recordsByType } from "./utils.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);

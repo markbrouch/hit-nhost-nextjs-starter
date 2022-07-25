@@ -1,4 +1,6 @@
 
+export const recordsByType: { [key: string]: number } = {};
+
 export function parseGedcomDate(dateString: string|undefined) : Date|string|undefined {
     if(!dateString) { return; }
 
