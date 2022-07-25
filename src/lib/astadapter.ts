@@ -70,30 +70,7 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
 
                 // item.data.mookuauhau_id = mookuauhauId;
 
-                if (strategy[item?.type]) {
-                    console.log(`type ${item.type} supported.`);
-
-                    if(item.type === 'HEAD' && mookuauhauId && mookuauhauId > 0) {
-                        console.log(`skip creating HEAD , already exists`);
-                    }
-                    else {
-                        // get the function to process this type based on the mutation mode setting
-                        const fn = strategy[item.type];
-                        const id = await fn(item, mutation_fns, mookuauhauId);
-                    }
-                }
-                else {
-                    console.log(`type ${item.type} not supported.`);
-                }
-
-                if (recordsByType[item.type] > 0) {
-                    // console.log("later recordsByType[item.type] ++");
-                    recordsByType[item.type] = recordsByType[item.type] + 1;
-                }
-                else {
-                    // console.log("first recordsByType[item.type] = 1");
-                    recordsByType[item.type] = 1;
-                }
+                await processOneGedcomRecord(item, mookuauhauId, mutation_fns);
 
                 if(index === 10) {
                     if (mutation_fns['indexcreation']) {
@@ -115,6 +92,35 @@ export async function transform(gedcom: { [key: string]: any }, mutationMode: st
         // await appCloseHandler();
         const fn = mutation_fns['close'];
         await fn();
+    }
+}
+
+async function processOneGedcomRecord(item: any, mookuauhauId: number|undefined, mutation_fns: { [key: string]: Function }) {
+    console.log("processOneGedcomRecord()");
+
+    if (strategy[item?.type]) {
+        console.log(`type ${item.type} supported.`);
+
+        if(item.type === 'HEAD' && mookuauhauId && mookuauhauId > 0) {
+            console.log(`skip creating HEAD , already exists`);
+        }
+        else {
+            // get the function to process this type based on the mutation mode setting
+            const fn = strategy[item.type];
+            const id = await fn(item, mutation_fns, mookuauhauId);
+        }
+    }
+    else {
+        console.log(`type ${item.type} not supported.`);
+    }
+
+    if (recordsByType[item.type] > 0) {
+        // console.log("later recordsByType[item.type] ++");
+        recordsByType[item.type] = recordsByType[item.type] + 1;
+    }
+    else {
+        // console.log("first recordsByType[item.type] = 1");
+        recordsByType[item.type] = 1;
     }
 }
 
