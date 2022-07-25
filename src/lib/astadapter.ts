@@ -122,8 +122,8 @@ const strategy: { [key: string]: any } = {
     'HEAD': (item: Parent, mutation_fns: { [key: string]: Function }) => header(item, mutation_fns),
     'INDI': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => individual(item, mutation_fns, mookuauhauId),
     'FAM': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => family(item, mutation_fns, mookuauhauId),
-    'REPO': (item: Parent) => repository(item),
-    'SOUR': (item: Parent) => source(item),
+    'REPO': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => repository(item, mutation_fns, mookuauhauId),
+    'SOUR': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => source(item, mutation_fns, mookuauhauId),
     'TRLR': (item: Parent) => trailer(item),
     // subtypes
     'SEX': (item: Parent) => gender(item),
@@ -288,11 +288,60 @@ async function family(item: Parent, mutation_fns: { [key: string]: Function }, m
 
 }
 
-function repository(item: Parent) {
+async function repository(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`repository()`);
+    console.log(item);
+
+    const insertMode: boolean = mutation_fns['insertmode']();
+
+    const repo: Repository | undefined = itemToRepositoryAst(item);
+    console.log("repo: ", repo);
+
+    if (item.children) {
+        item.children.forEach((child: Node<Data>, index: number) => {
+            console.log("child: ", child);
+            console.log(`\t type: ${child?.type}`);
+            console.log(`\t formal_name: ${child?.data?.formal_name}`);
+            console.log(`\t xref_id: ${child?.data?.xref_id}`);
+
+            if (strategy[child?.type]) {
+                console.log(`type ${child.type} supported.`);
+
+                const fn = strategy[child.type];
+                const id = fn(child, item, recordsByType);
+            }
+            else {
+                console.log(`type ${child.type} not supported.`);
+            }
+
+            const typeKey = child.type + '.' + child?.data?.formal_name;
+            if (recordsByType[typeKey] > 0) {
+                // console.log("later recordsByType[typeKey] ++");
+                recordsByType[typeKey] = recordsByType[typeKey] + 1;
+            }
+            else {
+                // console.log("first recordsByType[typeKey] = 1");
+                recordsByType[typeKey] = 1;
+            }
+
+        });
+    }
+
+    if (repo && insertMode) {
+        // const rv = await createFamily(repo);
+        const fn = mutation_fns['createrepository'];
+        const [ role, token ] = ['admin', '']; // hardcoded
+        const rv = await fn(repo, mookuauhauId, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createFamily()");
+    }
+
 }
 
-function source(item: Parent) {
+function source(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`source()`);
 }
 
@@ -311,6 +360,9 @@ import { Family } from "../models/Family.js";
 import { Person } from "../models/Person.js";
 import { Genealogy } from "../models/Genealogy.js";
 import { recordsByType } from "./utils.js";
+import { SourcePointer } from "../models/SourcePointer.js";
+import { Repository } from "../models/Repository.js";
+import { Source } from "../models/Source.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
@@ -557,19 +609,33 @@ export function itemToPersonAst(item: any) {
 
     });
 
-    const famc: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMC');
-    if (famc) {
-        person.family_child = [];
-        famc.forEach(() => {
-            person.family_child?.push();
-        });
-    }
+    // const famc: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMC');
+    // if (famc) {
+    //     person.family_child = [];
+    //     famc.forEach(() => {
+    //         person.family_child?.push();
+    //     });
+    // }
 
-    const fams: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMS');
-    if (fams) {
-        person.family_spouse = [];
-        fams.forEach(() => {
-            person.family_spouse?.push();
+    // const fams: Array<any> = item?.children?.filter((x:any) => x.type === 'FAMS');
+    // if (fams) {
+    //     person.family_spouse = [];
+    //     fams.forEach(() => {
+    //         person.family_spouse?.push();
+    //     });
+    // }
+
+    // SOUR
+    const sourcePointers: Array<any> = item?.children?.filter((x:any) => x.type === 'SOUR');
+    if (sourcePointers) {
+        person.sourcePointers = [];
+        sourcePointers.forEach((sp) => {
+            person.sourcePointers?.push(new SourcePointer({
+                page: getChildByTypeName(sp, 'PAGE'),
+                pointer: sp?.data?.pointer,
+                formal_name: sp?.data?.formal_name,
+            }));
+            // custom_tag ? TODO
         });
     }
 
@@ -615,5 +681,53 @@ function itemToFamilyAst(item: any) {
     }
 
     return fam;
+}
+
+function itemToRepositoryAst(item: any) {
+    console.log(`itemToRepositoryAst() [ast]`);
+    if (item.type !== 'REPO') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const repo = new Repository({
+        formal_name: data?.formal_name,
+        xref_id: data?.xref_id,
+        name: getChildByTypeName(item, 'NAME')?.data?.value,
+        address: getChildByTypeName(item, 'ADDR')?.data?.value,
+        phone: getChildByTypeName(item, 'PHON')?.data?.value,
+    });
+
+    return repo;
+}
+
+function itemToSourceAst(item: any) {
+    console.log(`itemToSourceAst() [ast]`);
+    if (item.type !== 'SOUR') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const source = new Source({
+        formal_name: data?.formal_name,
+        xref_id: data?.xref_id,
+        title: getChildByTypeName(item, 'TITL')?.data?.value,
+        author: getChildByTypeName(item, 'AUTH')?.data?.value,
+        publication: getChildByTypeName(item, 'PUBL')?.data?.value,
+        note: getChildByTypeName(item, 'NOTE')?.data?.value,
+        // custom_tag
+        customtags: {},
+    });
+
+    const checkTags = ['_ITALIC', '_PAREN', '_AKA', '_SCBK', '_PRIM', '_TYPE', '_SSHOW'];
+    checkTags.forEach(ct => {
+        if(source.customtags && getChildByTypeName(item, ct)?.data?.value) {
+            source.customtags[ct] = getChildByTypeName(item, ct)?.data?.value;
+        }
+    });
+
+    return source;
 }
 

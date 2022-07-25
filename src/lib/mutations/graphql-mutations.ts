@@ -4,6 +4,8 @@ import { Person } from '../../models/Person.js';
 import { Genealogy } from '../../models/Genealogy.js';
 import { Kamalii } from '../../models/Kamalii.js';
 import { parseGedcomDate } from '../utils.js';
+import { Repository } from '../../models/Repository.js';
+import { Source } from '../../models/Source.js';
 
 export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
     console.log("createGenealogy()");
@@ -225,6 +227,16 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
         }
     }
 
+}
+
+export async function createRepository(repo: Repository, mookuauhau_id: number|undefined, role: string, jwt_token: string) {
+    console.log("createRepository() ", repo.xref_id);
+    return await {};
+}
+
+export async function createSource(source: Source, mookuauhau_id: number|undefined, role: string, jwt_token: string) {
+    console.log("createSource() ", source.xref_id);
+    return await {};
 }
 
 export async function famLinkHusband(fam_id: string, person_id: string, role: string, jwt_token: string) {
@@ -616,6 +628,8 @@ export const mutation_fns: { [key: string]: Function } = {
     'creategenealogy': (genealogy: Genealogy, role: string, jwt_token: string) => createGenealogy(genealogy, role, jwt_token),
     'createperson': (person: Person, mookuauhauId: number|undefined, role: string, jwt_token: string) => createPerson(person, mookuauhauId, role, jwt_token),
     'createfamily': (fam: Family, mookuauhauId: number|undefined, role: string, jwt_token: string) => createFamily(fam, mookuauhauId, role, jwt_token),
+    'createrepository': (repo: Repository, mookuauhauId: number|undefined, role: string, jwt_token: string) => createRepository(repo, mookuauhauId, role, jwt_token),
+    'createsource': (source: Source, mookuauhauId: number|undefined, role: string, jwt_token: string) => createSource(source, mookuauhauId, role, jwt_token),
     // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
     // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),

@@ -9,6 +9,8 @@ let driver: Driver | undefined = neo4jdriver(NEO4J_ENDPOINT, neo4jauth.basic(NEO
 import { Family } from '../../models/Family.js';
 import { Genealogy } from '../../models/Genealogy.js';
 import { Person } from '../../models/Person.js';
+import { Repository } from '../../models/Repository.js';
+import { Source } from '../../models/Source.js';
 
 export async function createGenealogy(person: Genealogy) {
     console.log("createGenealogy()");
@@ -146,6 +148,16 @@ export async function createFamily(fam: Family): Promise<Neo4jnode | undefined> 
     }
 
     return node;
+}
+
+export async function createRepository(repo: Repository) {
+    console.log("createRepository() ", repo.xref_id);
+    return await {};
+}
+
+export async function createSource(source: Source) {
+    console.log("createSource() ", source.xref_id);
+    return await {};
 }
 
 export async function famLinkParent(fam_id: string, person_id: string, ptype: string) {
@@ -344,6 +356,8 @@ export const mutation_fns: { [key: string]: Function } = {
     'creategenealogy': (genealogy: Genealogy, role: string, jwt_token: string) => createGenealogy(genealogy),
     'createperson': (person: Person) => createPerson(person),
     'createfamily': (fam: Family) => createFamily(fam),
+    'createrepository': (repo: Repository) => createRepository(repo),
+    'createsource': (source: Source) => createSource(source),
     // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'k'),
     // 'linkfamwife': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'w'),
     'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),

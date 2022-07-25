@@ -24,6 +24,8 @@ export class Person {
     change_date: Date|undefined;
     source_uid: string|undefined;
 
+    sourcePointers: Array<any>|undefined;
+
     public constructor(init?:Partial<Person>) {
         Object.assign(this, init);
     }
