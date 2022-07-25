@@ -10,7 +10,9 @@ import { Family } from '../../models/Family.js';
 import { Genealogy } from '../../models/Genealogy.js';
 import { Person } from '../../models/Person.js';
 import { Repository } from '../../models/Repository.js';
+import { RepositoryPointer } from '../../models/RepositoryPointer.js';
 import { Source } from '../../models/Source.js';
+import { SourcePointer } from '../../models/SourcePointer.js';
 
 export async function createGenealogy(person: Genealogy) {
     console.log("createGenealogy()");
@@ -157,6 +159,16 @@ export async function createRepository(repo: Repository) {
 
 export async function createSource(source: Source) {
     console.log("createSource() ", source.xref_id);
+    return await {};
+}
+
+export async function createSourcePointer(sp: SourcePointer) {
+    console.log("createSourcePointer() ", sp.pointer);
+    return await {};
+}
+
+export async function createRepositoryPointer(rp: RepositoryPointer) {
+    console.log("createRepositoryPointer() ", rp.pointer);
     return await {};
 }
 
@@ -358,8 +370,9 @@ export const mutation_fns: { [key: string]: Function } = {
     'createfamily': (fam: Family) => createFamily(fam),
     'createrepository': (repo: Repository) => createRepository(repo),
     'createsource': (source: Source) => createSource(source),
-    // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'k'),
-    // 'linkfamwife': (fam_id: string, person_id: string, ptype: string) => famLinkParent(fam_id, person_id, 'w'),
+    'createsourcepointer': (sp: SourcePointer) => createSourcePointer(sp),
+    'createrepositorypointer': (rp: RepositoryPointer) => createRepositoryPointer(rp),
+
     'linkfamchild': (fam_id: string, person_id: string) => famLinkChild(fam_id, person_id),
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
@@ -368,3 +381,4 @@ export const mutation_fns: { [key: string]: Function } = {
     'sleepytime': () => sleepytime(),
     'insertmode': () => true,
 }
+

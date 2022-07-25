@@ -4,6 +4,17 @@ import { mutation_fns as neo4j_mutation_fns } from "./mutations/neo4j-mutations.
 import { mutation_fns as graphql_mutation_fns } from "./mutations/graphql-mutations.js";
 import { mutation_fns as mock_mutation_fns } from "./mutations/mock-mutations.js";
  
+import { Data, Node } from 'unist';
+import { ChildRel } from "../models/ChildRel.js";
+import { Family } from "../models/Family.js";
+import { Person } from "../models/Person.js";
+import { Genealogy } from "../models/Genealogy.js";
+import { recordsByType } from "./utils.js";
+import { SourcePointer } from "../models/SourcePointer.js";
+import { Repository } from "../models/Repository.js";
+import { Source } from "../models/Source.js";
+import { RepositoryPointer } from "../models/RepositoryPointer.js";
+
 export async function transform(gedcom: { [key: string]: any }, mutationMode: string, recordLimit: number, inputFilename: string|undefined, mookuauhauId: number|undefined) {
     console.log(`transform()`);
 
@@ -114,14 +125,7 @@ async function processOneGedcomRecord(item: any, mookuauhauId: number|undefined,
         console.log(`type ${item.type} not supported.`);
     }
 
-    if (recordsByType[item.type] > 0) {
-        // console.log("later recordsByType[item.type] ++");
-        recordsByType[item.type] = recordsByType[item.type] + 1;
-    }
-    else {
-        // console.log("first recordsByType[item.type] = 1");
-        recordsByType[item.type] = 1;
-    }
+    incrementRecordsByType(item.type);
 }
 
 const strategy: { [key: string]: any } = {
@@ -131,20 +135,22 @@ const strategy: { [key: string]: any } = {
     'REPO': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => repository(item, mutation_fns, mookuauhauId),
     'SOUR': (item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => source(item, mutation_fns, mookuauhauId),
     'TRLR': (item: Parent) => trailer(item),
+}
+
+const strategy_subtypes: { [key: string]: any } = {
     // subtypes
-    'SEX': (item: Parent) => gender(item),
-    'NAME': (item: Parent) => name(item),
-    'FAMS': (subitem: Parent, item: Parent) => familyspouse(subitem, item),
-    'BIRT': (item: Parent) => gender(item),
-    'DEAT': (item: Parent) => gender(item),
-    'PLAC': (item: Parent) => gender(item),
+    // 'SEX': (item: Parent) => gender(item),
+    // 'NAME': (item: Parent) => name(item),
+    // 'FAMS': (subitem: Parent, item: Parent) => familyspouse(subitem, item),
+    // 'BIRT': (item: Parent) => gender(item),
+    // 'DEAT': (item: Parent) => gender(item),
+    // 'PLAC': (item: Parent) => gender(item),
     'HUSB': (subitem: Parent, item: Parent) => fam_husb(subitem, item),
     'WIFE': (subitem: Parent, item: Parent) => fam_wife(subitem, item),
     'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
+    'SOUR': (subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => sourcePointer(subitem, item, mutation_fns, mookuauhauId),
+    'REPO': (subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => repositoryPointer(subitem, item, mutation_fns, mookuauhauId),
 }
-
-// const strategy = strategy_neo4j;
-// const strategy = strategy_graphql;
 
 async function header(item: Parent, mutation_fns: { [key: string]: Function }) {
     console.log(`header()`);
@@ -165,8 +171,10 @@ async function header(item: Parent, mutation_fns: { [key: string]: Function }) {
         const rv = await fn(genealogy, role, token);
         console.log("rv: ", rv);
 
-        mookuauhauId = rv?.insert_mookuauhau_one.mookuauhau_id;
-        console.log("inserted mookuauhau_id: ", mookuauhauId);
+        if(rv?.insert_mookuauhau_one?.mookuauhau_id) {
+            mookuauhauId = rv?.insert_mookuauhau_one?.mookuauhau_id;
+            console.log("inserted mookuauhau_id: ", mookuauhauId);
+        }
 
         await mutation_fns['sleepytime']();
     }
@@ -209,15 +217,7 @@ export async function individual(item: Parent, mutation_fns: { [key: string]: Fu
 
             // BIRT|NAME|SEX|FAMC|FAMS
             const typeKey = child.type + '.' + child?.data?.formal_name;
-            if (recordsByType[typeKey] > 0) {
-                // console.log("later recordsByType[typeKey] ++");
-                recordsByType[typeKey] = recordsByType[typeKey] + 1;
-            }
-            else {
-                // console.log("first recordsByType[typeKey] = 1");
-                recordsByType[typeKey] = 1;
-            }
-
+            incrementRecordsByType(typeKey);
         });
     }
 
@@ -245,6 +245,7 @@ async function family(item: Parent, mutation_fns: { [key: string]: Function }, m
     console.log(item);
 
     const insertMode: boolean = mutation_fns['insertmode']();
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
 
     // const fam: Family | undefined = itemToFamily(item);
     const fam: Family | undefined = itemToFamilyAst(item);
@@ -257,26 +258,18 @@ async function family(item: Parent, mutation_fns: { [key: string]: Function }, m
             console.log(`\t formal_name: ${child?.data?.formal_name}`);
             console.log(`\t xref_id: ${child?.data?.xref_id}`);
 
-            if (strategy[child?.type]) {
+            if (strategy_subtypes[child?.type]) {
                 console.log(`type ${child.type} supported.`);
 
-                const fn = strategy[child.type];
-                const id = fn(child, item, recordsByType);
+                const fn = strategy_subtypes[child.type];
+                const id = fn(child, item, mutation_fns, mookuauhauId);
             }
             else {
                 console.log(`type ${child.type} not supported.`);
             }
 
             const typeKey = child.type + '.' + child?.data?.formal_name;
-            if (recordsByType[typeKey] > 0) {
-                // console.log("later recordsByType[typeKey] ++");
-                recordsByType[typeKey] = recordsByType[typeKey] + 1;
-            }
-            else {
-                // console.log("first recordsByType[typeKey] = 1");
-                recordsByType[typeKey] = 1;
-            }
-
+            incrementRecordsByType(typeKey);
         });
     }
 
@@ -298,6 +291,7 @@ async function repository(item: Parent, mutation_fns: { [key: string]: Function 
     console.log(`repository()`);
     console.log(item);
 
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
     const insertMode: boolean = mutation_fns['insertmode']();
 
     const repo: Repository | undefined = itemToRepositoryAst(item);
@@ -310,25 +304,18 @@ async function repository(item: Parent, mutation_fns: { [key: string]: Function 
             console.log(`\t formal_name: ${child?.data?.formal_name}`);
             console.log(`\t xref_id: ${child?.data?.xref_id}`);
 
-            if (strategy[child?.type]) {
+            if (strategy_subtypes[child?.type]) {
                 console.log(`type ${child.type} supported.`);
 
-                const fn = strategy[child.type];
-                const id = fn(child, item, recordsByType);
+                const fn = strategy_subtypes[child.type];
+                const id = fn(child, item, mutation_fns, mookuauhauId);
             }
             else {
                 console.log(`type ${child.type} not supported.`);
             }
 
             const typeKey = child.type + '.' + child?.data?.formal_name;
-            if (recordsByType[typeKey] > 0) {
-                // console.log("later recordsByType[typeKey] ++");
-                recordsByType[typeKey] = recordsByType[typeKey] + 1;
-            }
-            else {
-                // console.log("first recordsByType[typeKey] = 1");
-                recordsByType[typeKey] = 1;
-            }
+            incrementRecordsByType(typeKey);
 
         });
     }
@@ -342,13 +329,126 @@ async function repository(item: Parent, mutation_fns: { [key: string]: Function 
         await mutation_fns['sleepytime']();
     }
     else {
-        console.log("skipping createFamily()");
+        console.log("skipping createRepository()");
     }
 
 }
 
-function source(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+async function source(item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
     console.log(`source()`);
+    // note: SOUR could be called as a main record, or a child pointer record
+    console.log(item);
+
+    const pointer = item?.data?.pointer;
+    if(pointer) { console.log(`pointer: ${pointer}`);}
+
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
+
+    const insertMode: boolean = mutation_fns['insertmode']();
+
+    const source: Source | undefined = itemToSourceAst(item);
+    console.log("source: ", source);
+
+    if (item.children) {
+        item.children.forEach((child: Node<Data>, index: number) => {
+            console.log("child: ", child);
+            console.log(`\t type: ${child?.type}`);
+            console.log(`\t formal_name: ${child?.data?.formal_name}`);
+            console.log(`\t xref_id: ${child?.data?.xref_id}`);
+
+            if (strategy_subtypes[child?.type]) {
+                console.log(`type ${child.type} supported.`);
+
+                const fn = strategy_subtypes[child.type];
+                const id = fn(child, item, mutation_fns, mookuauhauId);
+            }
+            else {
+                console.log(`type ${child.type} not supported.`);
+            }
+
+            const typeKey = child.type + '.' + child?.data?.formal_name;
+            incrementRecordsByType(typeKey);
+
+        });
+    }
+
+    if (source && insertMode) {
+        // const rv = await createFamily(source);
+        const fn = mutation_fns['createsource'];
+        const [ role, token ] = ['admin', '']; // hardcoded
+        const rv = await fn(source, mookuauhauId, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createSource()");
+    }
+}
+
+async function sourcePointer(subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+    console.log(`sourcePointer()`);
+    // note: SOUR could be called as a main record, or a child pointer record
+    console.log(subitem);
+
+    const pointer = subitem?.data?.pointer;
+    if(pointer) { console.log(`pointer: ${pointer}`);}
+
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
+
+    const insertMode: boolean = mutation_fns['insertmode']();
+
+    const sp: SourcePointer | undefined = itemToSourcePointerAst(subitem);
+    console.log("sp: ", sp);
+
+    if (sp && insertMode) {
+        // const rv = await createFamily(source);
+        const fn = mutation_fns['createsourcepointer'];
+        const [ role, token ] = ['admin', '']; // hardcoded
+        const rv = await fn(sp, mookuauhauId, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createSourcePointer()");
+    }
+}
+
+async function repositoryPointer(subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+    console.log(`repositoryPointer()`);
+    // note: REPO could be called as a main record, or a child pointer record
+    console.log(subitem);
+
+    const pointer = subitem?.data?.pointer;
+    if(pointer) { console.log(`pointer: ${pointer}`);}
+
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
+
+    const insertMode: boolean = mutation_fns['insertmode']();
+
+    const rp: RepositoryPointer | undefined = itemToRepositoryPointerAst(subitem);
+    console.log("rp: ", rp);
+
+    if (rp && insertMode) {
+        const fn = mutation_fns['createrepositorypointer'];
+        const [ role, token ] = ['admin', '']; // hardcoded
+        const rv = await fn(rp, mookuauhauId, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createRepositoryPointer()");
+    }
+}
+
+function incrementRecordsByType(typeKey: string) {
+    if (recordsByType[typeKey] > 0) {
+        // console.log("later recordsByType[item.type] ++");
+        recordsByType[typeKey] = recordsByType[typeKey] + 1;
+    }
+    else {
+        // console.log("first recordsByType[item.type] = 1");
+        recordsByType[typeKey] = 1;
+    }
 }
 
 function trailer(item: Parent) {
@@ -359,16 +459,6 @@ function trailer(item: Parent) {
 function gender(item: Parent) {
     console.log(`gender()`);
 }
-
-import { Data, Node } from 'unist';
-import { ChildRel } from "../models/ChildRel.js";
-import { Family } from "../models/Family.js";
-import { Person } from "../models/Person.js";
-import { Genealogy } from "../models/Genealogy.js";
-import { recordsByType } from "./utils.js";
-import { SourcePointer } from "../models/SourcePointer.js";
-import { Repository } from "../models/Repository.js";
-import { Source } from "../models/Source.js";
 
 function name(item: Parent<Node<Data>, Data>) {
     console.log(`name()`);
@@ -700,9 +790,9 @@ function itemToRepositoryAst(item: any) {
     const repo = new Repository({
         formal_name: data?.formal_name,
         xref_id: data?.xref_id,
-        name: getChildByTypeName(item, 'NAME')?.data?.value,
-        address: getChildByTypeName(item, 'ADDR')?.data?.value,
-        phone: getChildByTypeName(item, 'PHON')?.data?.value,
+        name: getChildByTypeName(item, 'NAME')?.value,
+        address: getChildByTypeName(item, 'ADDR')?.value,
+        phone: getChildByTypeName(item, 'PHON')?.value,
     });
 
     return repo;
@@ -719,21 +809,60 @@ function itemToSourceAst(item: any) {
     const source = new Source({
         formal_name: data?.formal_name,
         xref_id: data?.xref_id,
-        title: getChildByTypeName(item, 'TITL')?.data?.value,
-        author: getChildByTypeName(item, 'AUTH')?.data?.value,
-        publication: getChildByTypeName(item, 'PUBL')?.data?.value,
-        note: getChildByTypeName(item, 'NOTE')?.data?.value,
+        title: getChildByTypeName(item, 'TITL')?.value,
+        author: getChildByTypeName(item, 'AUTH')?.value,
+        publication: getChildByTypeName(item, 'PUBL')?.value,
+        note: getChildByTypeName(item, 'NOTE')?.value,
+        text: getChildByTypeName(item, 'TEXT')?.value,
+        call_number: getChildByTypeName(item, 'CALN')?.value,
+    
+        version: getChildByTypeName(item, 'VERS')?.value,
+        corporate: getChildByTypeName(item, 'CORP')?.value,
+        page: getChildByTypeName(item, 'PAGE')?.value,
+    
         // custom_tag
         customtags: {},
     });
 
     const checkTags = ['_ITALIC', '_PAREN', '_AKA', '_SCBK', '_PRIM', '_TYPE', '_SSHOW'];
     checkTags.forEach(ct => {
-        if(source.customtags && getChildByTypeName(item, ct)?.data?.value) {
-            source.customtags[ct] = getChildByTypeName(item, ct)?.data?.value;
+        if(source.customtags && getChildByTypeName(item, ct)?.value) {
+            source.customtags[ct] = getChildByTypeName(item, ct)?.value;
         }
     });
 
     return source;
+}
+
+function itemToSourcePointerAst(item: any) {
+    console.log(`itemToSourcePointerAst() [ast]`);
+    if (item.type !== 'SOUR') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const sp = new SourcePointer({
+        formal_name: data?.formal_name,
+        pointer: data?.pointer,
+    });
+
+    return sp;
+}
+
+function itemToRepositoryPointerAst(item: any) {
+    console.log(`itemToRepositoryPointerAst() [ast]`);
+    if (item.type !== 'REPO') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const rp = new RepositoryPointer({
+        formal_name: data?.formal_name,
+        pointer: data?.pointer,
+    });
+
+    return rp;
 }
 

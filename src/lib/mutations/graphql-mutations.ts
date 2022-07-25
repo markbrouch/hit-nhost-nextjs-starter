@@ -6,6 +6,8 @@ import { Kamalii } from '../../models/Kamalii.js';
 import { parseGedcomDate } from '../utils.js';
 import { Repository } from '../../models/Repository.js';
 import { Source } from '../../models/Source.js';
+import { SourcePointer } from '../../models/SourcePointer.js';
+import { RepositoryPointer } from '../../models/RepositoryPointer.js';
 
 export async function createGenealogy(genealogy: Genealogy, role: string, jwt_token: string) {
     console.log("createGenealogy()");
@@ -236,6 +238,16 @@ export async function createRepository(repo: Repository, mookuauhau_id: number|u
 
 export async function createSource(source: Source, mookuauhau_id: number|undefined, role: string, jwt_token: string) {
     console.log("createSource() ", source.xref_id);
+    return await {};
+}
+
+export async function createSourcePointer(sp: SourcePointer, mookuauhau_id: number|undefined, role: string, jwt_token: string) {
+    console.log("createSourcePointer() ", sp.pointer);
+    return await {};
+}
+
+export async function createRepositoryPointer(rp: RepositoryPointer) {
+    console.log("createRepositoryPointer() ", rp.pointer);
     return await {};
 }
 
@@ -630,10 +642,9 @@ export const mutation_fns: { [key: string]: Function } = {
     'createfamily': (fam: Family, mookuauhauId: number|undefined, role: string, jwt_token: string) => createFamily(fam, mookuauhauId, role, jwt_token),
     'createrepository': (repo: Repository, mookuauhauId: number|undefined, role: string, jwt_token: string) => createRepository(repo, mookuauhauId, role, jwt_token),
     'createsource': (source: Source, mookuauhauId: number|undefined, role: string, jwt_token: string) => createSource(source, mookuauhauId, role, jwt_token),
-    // 'linkfamparent': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkParent(fam_id, person_id, ptype),
-    // 'linkfamhusband': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkHusband(fam_id, person_id, role, jwt_token),
-    // 'linkfamwife': (fam_id: string, person_id: string, ptype: string, role: string, jwt_token: string) => famLinkWife(fam_id, person_id, role, jwt_token),
-    // 'linkfamchild': (mookuauhau_id: number|undefined, fam_id: string, person_id: string, role: string, jwt_token: string) => famLinkChild(mookuauhau_id, fam_id, person_id, role, jwt_token),
+    'createsourcepointer': (sp: SourcePointer, mookuauhauId: number|undefined, role: string, jwt_token: string) => createSourcePointer(sp, mookuauhauId, role, jwt_token),
+    'createrepositorypointer': (rp: RepositoryPointer) => createRepositoryPointer(rp),
+
     'linkpersons': (name1: string, rel: string, name2: string) => linkPersons(name1, rel, name2),
     'linkchildparentdirect': (parentId: string, childId: string) => linkChildParentDirect(parentId, childId),
     'indexcreation': () => console.log('no op'),
