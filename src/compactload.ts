@@ -1,5 +1,5 @@
 
-console.log("gedcomloader");
+console.log("compactload *DEPRECATED* - loses data in translation");
 
 let inputfile = process.argv[2] || '';
 let outputfile = process.argv[3] || '';

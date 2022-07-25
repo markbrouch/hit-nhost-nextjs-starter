@@ -1,5 +1,5 @@
 
-console.log("gedcomloader");
+console.log("gedcomloader astload");
 
 let inputfile = process.argv[2] || '';
 let outputfile = process.argv[3] || '';
@@ -22,9 +22,6 @@ import { transform } from "./lib/astadapter.js";
   const infile = inputfile || '';
   const outfile = outputfile || '';
   const inputStr = Fs.readFileSync(infile, "utf8");
-
-  // mutation mode
-  const mutationMode = process.env.MUTATION_MODE === 'graphql' ? 'graphql' : 'neo4j';
 
   const ast = parse(inputStr);
 

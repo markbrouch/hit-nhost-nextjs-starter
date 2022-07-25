@@ -352,4 +352,5 @@ export const mutation_fns: { [key: string]: Function } = {
     'indexcreation': () => indexCreation(),
     'close': () => appCloseHandler(),
     'sleepytime': () => sleepytime(),
+    'insertmode': () => true,
 }
