@@ -9,7 +9,7 @@ Forked from https://github.com/nhost/nhost for use with mookuauhau-nhost-backend
 1. Clone the repository
 
 ```sh
-git clone https://github.com/nohea/hit-nhost-nextjs-starter
+git clone https://github.com/hawaiiansintech/hit-nhost-nextjs-starter
 cd hit-nhost-nextjs-starter
 ```
 
