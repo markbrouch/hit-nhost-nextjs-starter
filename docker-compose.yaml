@@ -9,8 +9,9 @@ services:
     env_file:
       - .env
     environment:
-      NEO4J_ENDPOINT: bolt://neo4j
       HASURA_GRAPHQL_ENDPOINT: http://nhost-graphql-engine:8080
+      NEO4J_ENDPOINT: bolt://neo4j
+      NHOST_BACKEND_URL: http://nhost-graphql-engine:8080
     volumes:
       - ./src:/app/src:cached
 
