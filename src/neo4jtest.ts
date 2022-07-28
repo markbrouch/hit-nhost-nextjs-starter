@@ -12,8 +12,8 @@ const session = driver.session()
 
 try {
 
-    const alice = await createPerson(new Person({name: 'Alice'}));
-    const lopaka = await createPerson(new Person({name: 'Lopaka'}));
+    const alice = await createPerson(new Person({name: 'Alice', xref_id: '1'}));
+    const lopaka = await createPerson(new Person({name: 'Lopaka', xref_id: '2'}));
 
     await linkPersons(alice?.properties.name, 'follows', lopaka?.properties.name);
 
@@ -23,5 +23,3 @@ try {
 
 // on application exit:
 await driver.close()
-
-

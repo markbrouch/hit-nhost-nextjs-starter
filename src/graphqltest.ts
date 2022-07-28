@@ -8,10 +8,10 @@ const jwt_token = '';
 
 try {
 
-    // const alice = await createPerson(new Person({name: 'Alice'}), role, jwt_token);
-    // const lopaka = await createPerson(new Person({name: 'Lopaka'}), role, jwt_token);
+    const alice = await createPerson(new Person({name: 'Alice'}), 23, role, jwt_token);
+    const lopaka = await createPerson(new Person({name: 'Lopaka'}), 25, role, jwt_token);
 
-    // await linkPersons(alice?.properties.name, 'follows', lopaka?.properties.name);
+    await linkPersons(alice?.properties.name, 'follows', lopaka?.properties.name);
 
     const fam = await createFamily(new Family({
         xref_id: '@F0001@',

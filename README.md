@@ -74,6 +74,20 @@ rm -fr data
 
 # re-run the first-time setup written above
 ```
+
+## Tests within docker
+
+To test the application run:
+
+```sh
+# test neo4j
+docker compose run --rm api npm run t4j
+
+# test graphql
+docker compose run --rm api npm run tgql
+```
+
+
 # system architecture
 
 ![software architecture diagram](static/moʻokūʻauhau-backend-diagram.png?raw=true)

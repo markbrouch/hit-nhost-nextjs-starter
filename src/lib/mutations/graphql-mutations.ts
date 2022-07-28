@@ -78,10 +78,10 @@ export async function createPerson(person: Person, mookuauhauId: number|undefine
 
     if (mookuauhauId) { params.mookuauhau_id = mookuauhauId; }
 
-    if (parseGedcomDate(person.birth_date)) { 
+    if (parseGedcomDate(person.birth_date)) {
         params.birth_date_dt = parseGedcomDate(person.birth_date);
     }
-    if (parseGedcomDate(person.death_date)) { 
+    if (parseGedcomDate(person.death_date)) {
         params.death_date_dt = parseGedcomDate(person.death_date);
     }
 
@@ -172,7 +172,7 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
     console.log("ohana_id : ", ohana_id);
 
     // // relations / edges
- 
+
     // if (fam.xref_id && fam.husband) {
     //     const makuakane = await famLinkHusband(ohana_id, makuakane_kanaka_id, role, jwt_token);
     // }
@@ -198,7 +198,7 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
             console.log("c._mrel : ", c._mrel);
 
             if (fam.xref_id && c.xref_id) {
-                const kamalii_kanaka = await get_kanaka_by_xrefid(mookuauhau_id, c.xref_id, role, jwt_token); 
+                const kamalii_kanaka = await get_kanaka_by_xrefid(mookuauhau_id, c.xref_id, role, jwt_token);
                 console.log("kamalii_kanaka: ", kamalii_kanaka);
 
                 if(kamalii_kanaka.kanaka.length > 0) {
@@ -217,7 +217,7 @@ export async function createFamily(fam: Family, mookuauhau_id: number|undefined,
             else {
                 console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
             }
-        
+
             if (fam.xref_id && c.xref_id && fam.husband) {
                 // linkChildParentDirect(fam.husband, c.xref_id);
             }
@@ -491,21 +491,21 @@ export async function famLinkChild(mookuauhau_id: number|undefined, fam_id: stri
                 object: {
                     kanaka_id: kanaka.kanaka_id,
                     ohana_id: ohana.ohana_id,
-                    _frel: frel, 
+                    _frel: frel,
                     _mrel: mrel,
                 }
             };
-        
+
             let addHeaders = {
                 "x-hasura-role": role
             };
-        
+
             kamalii_id = await gqlRequest(query, variables, jwt_token, addHeaders);
         }
         else {
             console.log(`no matches for kanaka by person xrefid '${person_id}'`);
         }
-        
+
     } finally {
         await sleepytime();
     }
@@ -553,7 +553,7 @@ export async function linkChildParentDirect(parentId: string, childId: string) {
     //         {}
     //         // { childId: childId, parentId: parentId } // not used?
     //     );
-    
+
     //     // console.log(result);
 
     // } finally {

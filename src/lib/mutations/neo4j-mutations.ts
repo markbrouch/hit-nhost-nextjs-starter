@@ -54,9 +54,7 @@ export async function createPerson(person: Person): Promise<Neo4jnode | undefine
         );
 
         const singleRecord = result?.records[0];
-        let node = singleRecord?.get(0);
-
-        console.log(node.properties.name);
+        return singleRecord?.get(0);
 
     } finally {
         if (neo4jsession) {
@@ -137,7 +135,7 @@ export async function createFamily(fam: Family): Promise<Neo4jnode | undefined> 
             else {
                 console.log(`no famLinkChild for ${fam.xref_id}, ${c.xref_id}`);
             }
-        
+
             if (fam.xref_id && c.xref_id && fam.husband) {
                 // linkChildParentDirect(driver, neo4jsession, fam.husband, c.xref_id);
             }
@@ -291,7 +289,7 @@ export async function linkChildParentDirect(parentId: string, childId: string) {
             {}
             // { childId: childId, parentId: parentId } // not used?
         );
-    
+
         // console.log(result);
 
     } finally {
@@ -381,4 +379,3 @@ export const mutation_fns: { [key: string]: Function } = {
     'sleepytime': () => sleepytime(),
     'insertmode': () => true,
 }
-
