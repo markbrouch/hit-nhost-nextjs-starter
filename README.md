@@ -556,7 +556,8 @@ DETACH DELETE n
 
 # Mock import code
 
-This is for reading the GEDCOM file, and transforming but not inserting anywhere. Possibly exporintg to the output json file (3rd parameter).
+This is for reading the GEDCOM file, and transforming but not inserting anywhere. 
+Possibly exporting the abstract syntax tree to the output json file (3rd parameter).
 
 ## .env file
 
@@ -567,7 +568,7 @@ MUTATION_MODE=mock
 ## command
 
 ```
-npm run load  ../gedcom/mookuauhau.ged ./output.json
+npm run load  ../gedcom/mookuauhau.ged ./output-ast.json
 ```
 
 # extra notes

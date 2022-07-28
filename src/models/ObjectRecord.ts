@@ -1,4 +1,4 @@
-export class Obje {
+export class ObjectRecord {
     xref_id: string|undefined;
     file: string|undefined;
     format: string|undefined;
@@ -6,7 +6,7 @@ export class Obje {
 
     customtags: { [key: string]: string } | undefined;
 
-    public constructor(init?:Partial<Obje>) {
+    public constructor(init?:Partial<ObjectRecord>) {
         Object.assign(this, init);
     }
 }

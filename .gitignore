@@ -9,7 +9,7 @@
 .DS_Store
 coverage
 *.log
-
+out.txt
 
 # API keys and secrets
 .env
@@ -18,3 +18,6 @@ coverage
 # note: must hand-edit hasura/metadata/databases/default/tables/tables.yaml
 /hasura/metadata/databases/default/tables/auth*
 /hasura/metadata/databases/default/tables/storage*
+
+# containers
+data/
