@@ -14,6 +14,7 @@ import { SourcePointer } from "../models/SourcePointer.js";
 import { Repository } from "../models/Repository.js";
 import { Source } from "../models/Source.js";
 import { RepositoryPointer } from "../models/RepositoryPointer.js";
+import { EventRecord } from "../models/EventRecord.js";
 
 export async function transform(gedcom: { [key: string]: any }, mutationMode: string, recordLimit: number, inputFilename: string|undefined, mookuauhauId: number|undefined) {
     console.log(`transform()`);
@@ -150,6 +151,7 @@ const strategy_subtypes: { [key: string]: any } = {
     'CHIL': (subitem: Parent, item: Parent) => fam_child(subitem, item),
     'SOUR': (subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => sourcePointer(subitem, item, mutation_fns, mookuauhauId),
     'REPO': (subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => repositoryPointer(subitem, item, mutation_fns, mookuauhauId),
+    'EVEN': (subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) => eventRecord(subitem, item, mutation_fns, mookuauhauId),
 }
 
 async function header(item: Parent, mutation_fns: { [key: string]: Function }) {
@@ -437,6 +439,31 @@ async function repositoryPointer(subitem: Parent, item: Parent, mutation_fns: { 
     }
     else {
         console.log("skipping createRepositoryPointer()");
+    }
+}
+
+async function eventRecord(subitem: Parent, item: Parent, mutation_fns: { [key: string]: Function }, mookuauhauId: number|undefined) {
+    console.log(`eventRecord()`);
+    console.log(subitem);
+
+    // type / date / plac / sources[] | objects[]
+
+    // console.log("typeof mutation_fns['insertmode']: ", typeof mutation_fns['insertmode']);
+
+    const insertMode: boolean = mutation_fns['insertmode']();
+
+    const ev: EventRecord | undefined = itemToEventRecordAst(subitem);
+    console.log("ev: ", ev);
+
+    if (ev && insertMode) {
+        const fn = mutation_fns['createevent'];
+        const [ role, token ] = ['admin', '']; // hardcoded
+        const rv = await fn(ev, mookuauhauId, role, token);
+
+        await mutation_fns['sleepytime']();
+    }
+    else {
+        console.log("skipping createEventRecord()");
     }
 }
 
@@ -864,5 +891,37 @@ function itemToRepositoryPointerAst(item: any) {
     });
 
     return rp;
+}
+
+function itemToEventRecordAst(item: any) {
+    console.log(`itemToEventRecordAst() [ast]`);
+    if (item.type !== 'EVEN') {
+        return;
+    }
+
+    const data = item?.data;
+
+    const ev = new EventRecord({
+        type: data?.type,
+        date: getChildByTypeName(item, 'DATE')?.value,
+        place: getChildByTypeName(item, 'PLAC')?.value,
+    });
+
+    const sources: Array<any> = item?.children?.filter((x:any) => x.type === 'SOUR');
+    console.log(`sources.length = ${sources.length}`);
+    if (sources) {
+        item.sources = [];
+        sources.forEach((val, index) => {
+            item.sources?.push(new SourcePointer({
+                formal_name: val?.data?.formal_name,
+                page: getChildByTypeName(val, 'PAGE'),
+                note: getChildByTypeName(val, 'NOTE'),
+                // object: getChildByTypeName(val, 'OBJE'),
+                // pointer: val?.data?.pointer,
+            }));
+        });
+    }
+
+    return ev;
 }
 
