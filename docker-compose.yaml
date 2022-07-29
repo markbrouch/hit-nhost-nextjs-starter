@@ -1,19 +1,5 @@
 version: '3.6'
 services:
-  ########################################################## mookuauhau-backend
-  api:
-    image: hawaiiansintech/mookuauhau-backend
-    container_name: api
-    build:
-      context: .
-    env_file:
-      - .env
-    environment:
-      HASURA_GRAPHQL_ENDPOINT: ${HASURA_GRAPHQL_ENDPOINT}
-      NHOST_BACKEND_URL: ${NHOST_BACKEND_URL}
-    volumes:
-      - ./src:/app/src:cached
-
   ########################################################## hasura-cli
   hasura-cli:
     image: hasura/graphql-engine:v2.8.3.cli-migrations-v3
@@ -27,7 +13,6 @@ services:
     working_dir: /hasura
     profiles:
       - donotstart
-
 
   ########################################################## nhost
   mb-hasura-postgres:
