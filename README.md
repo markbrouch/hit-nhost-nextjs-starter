@@ -53,7 +53,7 @@ This will spin up a local hasura graphql engine + postgresql database.
 Nohea expects most backend devs will be good with this, as it allows for testing 
 database and graphql metadata, migrations, without the need for messing with users. 
 
-We can use the shared Nhost users. 
+For the hackathon, we can use the shared users on our nhost.io instance. 
 
 The following endpoints are now exposed (based on your .env):
 - `http://localhost:8089`: Hasura Console (password is password)
