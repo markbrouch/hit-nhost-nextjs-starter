@@ -141,7 +141,15 @@ docker compose run --rm api npm run tgql
 
 # system architecture
 
+We are actually supporting 2 backends, for different purposes.
+
+## Hasura graphql engine - long-term platform
+
 ![software architecture diagram](static/moʻokūʻauhau-backend-diagram.png?raw=true)
+
+## Neo4j - Rapid Data Visualization backend (schemaless)
+
+![software architecture diagram](static/moʻokūʻauhau-neo4j-backend-diagram.png?raw=true)
 
 # database schema
 
