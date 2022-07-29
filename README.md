@@ -86,32 +86,6 @@ This will spin up a Neo4j instance.
 
 Use this as an alternative backed, for schemaless work. 
 
-## Setup db schema migrations, metadata (Hasura)
-
-To apply schema the database you run
-
-```sh
-# must be in the ./hasura dir
-cd ./hasura
-cp .env.example .env
-
-# check metadata
-hasura metadata diff
-
-# apply metadata
-hasura metadata apply
-
-# check schema migrations
-hasura migrate status --database-name default
-
-# apply migrations
-hasura migrate apply --database-name default
-```
-
-At that point, go to the hasura console and check it out. 
-http://localhost:8089/
-
-
 ## Reset Docker
 
 To reset docker compose run:
@@ -559,41 +533,58 @@ mutation delete_mookuauhau($mookuauhau_id: Int!) {
 {"mookuauhau_id": 5}
 ```
 
-# Hasura
+# Hasura management
 
-## Metadata
+## Setup db schema migrations, metadata (Hasura)
 
-You can run the following commands to diff and apply metadata:
+To apply schema the database you run
 
 ```sh
-# view diff
-docker compose run --rm hasura-cli metadata diff
+# must be in the ./hasura dir
+cd ./hasura
+cp .env.example .env
+
+# check metadata
+hasura metadata diff
 
 # apply metadata
-docker compose run --rm hasura-cli metadata apply
+hasura metadata apply
+
+# check schema migrations
+hasura migrate status --database-name default
+
+# apply migrations
+hasura migrate apply --database-name default
 ```
 
-## Migrations
+At that point, go to the hasura console and check it out. 
+http://localhost:8089/
 
-To run hasura migrations locally you can apply all migrations by running:
+## Migrations - defined
 
-```sh
-# run all migrations
-docker compose run --rm hasura-cli migrate apply --database-name default
+Hasura Migrations are files containing PostgreSQL schema definitions in SQL. 
+They are paired with 'up' and 'down' sql scripts. We're managing these by hand. 
 
-# get the status
-docker compose run --rm hasura-cli migrate status --database-name default
+## Metadata - defined
 
-# apply only 2 migrations
-docker compose run --rm hasura-cli migrate apply --database-name default --up 2
+Hasura metadata contains info on:
+- entity one-many relations on the graphql schema
+- row- and column- level permissions on database tables (role-based)
+- other connection strings or ENV variables
 
-# rollback only 2 migrations
-docker compose run --rm hasura-cli migrate apply --database-name default --down 2
-```
+They can be defined in the graphical Hasura Console and exported to the project (and committed to version control), 
+or also applied from the source project to the Hasura instance via the console (using hasura admin secret). 
+
+The reason for ENV vars in the docker-compose.yaml is for hasura metadata exports/apply scripts. If the export is from a container, you can't apply the metadata to production otherwise... pain! 🤕 So the practice we set up was to use .env in the project root dir. That will avoid ruining a production metadata with a development one. 
 
 You can read more about migrations at [Migrations & Metadata](https://hasura.io/docs/latest/graphql/core/migrations/index/)
 
 # Neo4j - alternative import code
+
+To import a GEDCOM file to Neo4j, 
+- you change your .env to `MUTATION_MODE=neo4j`
+- change/enable the NEO4J_* vars
+- and then run `npm run load ../your-gedcom-file.ged`
 
 ## neo4j / Cypher examples
 
