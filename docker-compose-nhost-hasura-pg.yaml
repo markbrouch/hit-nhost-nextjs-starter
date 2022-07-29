@@ -1,0 +1,179 @@
+version: '3.6'
+services:
+  ########################################################## mookuauhau
+  api:
+    image: hawaiiansintech/mookuauhau-backend
+    container_name: api
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      HASURA_GRAPHQL_ENDPOINT: ${HASURA_GRAPHQL_ENDPOINT}
+      NHOST_BACKEND_URL: ${NHOST_BACKEND_URL}
+    volumes:
+      - ./src:/app/src:cached
+
+  ########################################################## hasura-cli
+  hasura-cli:
+    image: hasura/graphql-engine:v2.8.3.cli-migrations-v3
+    container_name: hasura-cli
+    entrypoint: /bin/hasura-cli
+    environment:
+      HASURA_GRAPHQL_ENDPOINT: ${HASURA_GRAPHQL_ENDPOINT}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+    volumes:
+      - ./hasura:/hasura
+    working_dir: /hasura
+    profiles:
+      - donotstart
+
+
+  ########################################################## nhost
+  nhost-traefik:
+    image: "traefik:v2.5"
+    container_name: "nhost-traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:1337"
+    ports:
+      - "1337:1337"
+      - "9090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  nhost-postgres:
+    image: postgres
+    container_name: nhost-postgres
+    restart: always
+    volumes:
+      - ./data/nhost/db:/var/lib/postgresql/data
+      - ./docker/nhost/initdb.d:/docker-entrypoint-initdb.d:ro
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secretpgpassword}
+    ports:
+      - '5413:5432'
+  nhost-graphql-engine:
+    image: hasura/graphql-engine:v2.8.3
+    container_name: nhost-graphql-engine
+    depends_on:
+      - 'nhost-postgres'
+    restart: always
+    expose:
+      - 8089
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-secretpgpassword}@nhost-postgres:5432/postgres
+      HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: public
+      HASURA_GRAPHQL_LOG_LEVEL: debug
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hasura.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - "traefik.http.routers.hasura.entrypoints=web"
+  nhost-auth:
+    image: nhost/hasura-auth:latest
+    container_name: nhost-auth
+    depends_on:
+      - nhost-postgres
+      - nhost-graphql-engine
+    restart: always
+    environment:
+      AUTH_HOST: '0.0.0.0'
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-secretpgpassword}@nhost-postgres:5432/postgres
+      HASURA_GRAPHQL_GRAPHQL_URL: http://nhost-graphql-engine:8080/v1/graphql
+      HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      AUTH_CLIENT_URL: ${AUTH_CLIENT_URL:-http://localhost:3000}
+      AUTH_SMTP_HOST: nhost-mailhog
+      AUTH_SMTP_PORT: 1025
+      AUTH_SMTP_USER: user
+      AUTH_SMTP_PASS: password
+      AUTH_SMTP_SENDER: mail@example.com
+    expose:
+      - 4000
+    healthcheck:
+      disable: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.strip-auth.stripprefix.prefixes=/v1/auth"
+      - "traefik.http.routers.auth.rule=Host(`localhost`) && PathPrefix(`/v1/auth`)"
+      - "traefik.http.routers.auth.middlewares=strip-auth@docker"
+      - "traefik.http.routers.auth.entrypoints=web"
+  nhost-storage:
+    image: nhost/hasura-storage:0.2.1
+    container_name: nhost-storage
+    depends_on:
+      - nhost-postgres
+      - nhost-graphql-engine
+      - nhost-minio
+    restart: always
+    expose:
+      - 8000
+    healthcheck:
+      disable: true
+    environment:
+      PUBLIC_URL: http://localhost:${PROXY_PORT:-1337}
+      HASURA_METADATA: 1
+      HASURA_ENDPOINT: http://nhost-graphql-engine:8080/v1
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      S3_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      S3_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      S3_ENDPOINT: http://nhost-minio:8484
+      S3_BUCKET: nhost
+      POSTGRES_MIGRATIONS: 1
+      POSTGRES_MIGRATIONS_SOURCE: postgres://postgres:${POSTGRES_PASSWORD:-secretpgpassword}@nhost-postgres:5432/postgres?sslmode=disable
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.storage.rule=Host(`localhost`) && PathPrefix(`/v1/storage`)"
+      - "traefik.http.routers.storage.entrypoints=web"
+      # Rewrite the path so it matches with the new storage API path introduced in hasura-storage 0.2
+      - "traefik.http.middlewares.strip-suffix.replacepathregex.regex=^/v1/storage/(.*)"
+      - "traefik.http.middlewares.strip-suffix.replacepathregex.replacement=/v1/$$1"
+      - "traefik.http.routers.storage.middlewares=strip-suffix@docker"
+    command: serve
+  nhost-functions:
+    image: nhost/functions:latest
+    container_name: nhost-functions
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.strip-functions.stripprefix.prefixes=/v1/functions"
+      - "traefik.http.routers.functions.rule=Host(`localhost`) && PathPrefix(`/v1/functions`)"
+      - "traefik.http.routers.functions.middlewares=strip-functions@docker"
+      - "traefik.http.routers.functions.entrypoints=web"
+    restart: always
+    expose:
+      - 3000
+    healthcheck:
+      disable: true
+    volumes:
+      - ./docker/nhost/functions:/opt/project
+  nhost-minio:
+    image: minio/minio:RELEASE.2021-09-24T00-24-24Z
+    container_name: nhost-minio
+    entrypoint: sh
+    command: -c 'mkdir -p /data/nhost && /opt/bin/minio server --address :8484 /data'
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY}
+    ports:
+      - ${MINIO_PORT:-8484}:8484
+    volumes:
+      - ./data/nhost/minio:/data
+  nhost-mailhog:
+    image: mailhog/mailhog
+    container_name: nhost-mailhog
+    environment:
+      SMTP_HOST: ${AUTH_SMTP_HOST:-nhost-mailhog}
+      SMTP_PORT: ${AUTH_SMTP_PORT:-1025}
+      SMTP_PASS: ${AUTH_SMTP_PASS:-password}
+      SMTP_USER: ${AUTH_SMTP_USER:-user}
+      SMTP_SECURE: "${AUTH_SMTP_SECURE:-false}"
+      SMTP_SENDER: ${AUTH_SMTP_SENDER:-hbp@hbp.com}
+    ports:
+      - ${AUTH_SMTP_PORT:-1025}:1025
+      - 8025:8025
+    volumes:
+      - ./data/nhost/mailhog:/maildir

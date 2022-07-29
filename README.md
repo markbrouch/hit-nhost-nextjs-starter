@@ -28,12 +28,44 @@ These may be run against either local instances running in Docker containers, or
 
 Alternatively, Neo4j can be used as an alternative backend, for schemaless graph database. It has more built-in data visualization tools, but is more reliant on the Cypher query language.
 
-# Running Locally
 
-To run Moʻokūʻauhau locally:
+# Hasura Cloud hosting
 
+The cloud instance is managed using the same Hasura migrations+metadata. 
+
+Development on db schema and hasura metadata is done in local instances, 
+and promoted to production hosting when ready. 
+
+# Running Locally (hasura graphql engine + postgresql in docker)
+
+To run Moʻokūʻauhau backend locally, first get your .env file in order:
+```sh
+cp .env.example .env
+```
+
+Then start up local docker containers:
 ```sh
 docker compose up
+```
+
+This will spin up a local hasura graphql engine + postgresql database.
+
+Nohea expects most backend devs will be good with this, as it allows for testing 
+database and graphql metadata, migrations, without the need for messing with users. 
+
+We can use the shared Nhost users. 
+
+The following endpoints are now exposed (based on your .env):
+- `http://localhost:8089`: Hasura Console (password is password)
+- `http://localhost:8089/v1/graphql`: Hasura GraphQL endpoint
+- `localhost:5413`: PostgreSQL
+
+# Running Locally (hasura graphql engine + postgresql + nhost auth and nhost storage in docker)
+
+To run Moʻokūʻauhau backend (hasura graphql engine + postgresql + nhost auth and nhost storage) locally:
+
+```sh
+docker compose -f ./docker-compose-neo4j.yaml up
 ```
 
 This will spin up a local nhost environment and a neo4j database.
@@ -48,18 +80,37 @@ The following endpoints are now exposed:
 - `http://localhost:9090`: Traefik dashboad
 - `http://localhost:8025`: Mailhog SMTP testing dashboard
 
+# Running Locally Neo4j graphdb (docker)
 
-## First-time setup
+This will spin up a Neo4j instance.
 
-To seed the database you have to run
+Use this as an alternative backed, for schemaless work. 
+
+## Setup db schema migrations, metadata (Hasura)
+
+To apply schema the database you run
 
 ```sh
-# apply metadata
-docker compose run --rm hasura-cli metadata apply
+# must be in the ./hasura dir
+cd ./hasura
+cp .env.example .env
 
-# run migrations
-docker compose run --rm hasura-cli migrate apply --database-name default
+# check metadata
+hasura metadata diff
+
+# apply metadata
+hasura metadata apply
+
+# check schema migrations
+hasura migrate status --database-name default
+
+# apply migrations
+hasura migrate apply --database-name default
 ```
+
+At that point, go to the hasura console and check it out. 
+http://localhost:8089/
+
 
 ## Reset Docker
 
