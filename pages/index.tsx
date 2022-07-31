@@ -1,61 +1,82 @@
-import type { NextPage } from 'next'
-import { useState } from 'react'
-
-import { Button, Container, Input, Title } from '@mantine/core'
 import {
-  useAccessToken,
-  useAuthenticated,
-  useChangeEmail,
-  useChangePassword,
-  useSignOut
-} from '@nhost/nextjs'
-import { useAuthQuery } from '@nhost/react-apollo'
+  Badge,
+  Button,
+  Container,
+  Group,
+  Loader,
+  Paper,
+  Space,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { openModal } from "@mantine/modals";
+import { gql, useQuery } from "@apollo/client";
+import type { NextPage } from "next";
+import RequestAccessModal from "../components/RequestAccessModal";
 
-import { authProtected } from '../components/protected-route'
-import { BOOKS_QUERY } from '../helpers'
-
-// * Reference: https://blog.codepen.io/2021/09/01/331-next-js-apollo-server-side-rendering-ssr/
+import { authProtected } from "../components/protected-route";
 
 const Home: NextPage = () => {
-  const isAuthenticated = useAuthenticated()
-  const [email] = useState('')
-  const [password] = useState('')
-  const [newEmail, setNewEmail] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const accessToken = useAccessToken()
-  const { signOut } = useSignOut()
-  const { changeEmail, ...changeEmailResult } = useChangeEmail()
-  const { changePassword, ...changePasswordResult } = useChangePassword()
-  const { loading, data, error } = useAuthQuery(BOOKS_QUERY)
+  const MOOKUAUHAU_QUERY = gql`
+    query Mookuauhau {
+      mookuauhau_public {
+        owner_id
+        mookuauhau_id
+        name
+        visibility
+      }
+    }
+  `;
+
+  const { loading, data, error } = useQuery(MOOKUAUHAU_QUERY);
+
   return (
-    <Container>
-      <Title>Index page</Title>
-      {isAuthenticated ? (
-        <>
-          <Button onClick={signOut}>Logout</Button>
-          <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
-          <Button onClick={() => changeEmail(email)}>Change email</Button>
-          <div>{JSON.stringify(changeEmailResult)}</div>
-          <Button onClick={() => changePassword(password)}>Change password</Button>
-          <Input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-          <div>{JSON.stringify(changePasswordResult)}</div>
-        </>
-      ) : (
-        <div>go to /sign-in</div>
-      )}
+    <Container size="sm">
+      <Title>Moʻokūʻauhau</Title>
+      <Space h="lg"></Space>
+      {loading && <Loader />}
 
-      <p>Access Token</p>
-      <div>{accessToken}</div>
-      {isAuthenticated && (
-        <ul>
-          {data?.books.map((item) => (
-            <li key={item.id}>{item.title}</li>
+      {data && (
+        <Stack>
+          {data.mookuauhau_public.map((item) => (
+            <Paper key={item.mookuauhau_id} withBorder shadow="sm" p="md">
+              <Group position="apart">
+                <Stack>
+                  <Group>
+                    <Title>{item.name}</Title>
+                    {item.visibility === "private" && (
+                      <Badge color="red">private</Badge>
+                    )}
+                  </Group>
+                  <Text>Owner: {item.owner_id}</Text>
+                </Stack>
+                {item.visibility === "private" ? (
+                  <Button
+                    onClick={() => {
+                      openModal({
+                        title: "Request Access",
+                        children: (
+                          <RequestAccessModal
+                            mookuauhauId={item.mookuauhau_id}
+                            ownerId={item.owner_id}
+                          />
+                        ),
+                      });
+                    }}
+                  >
+                    Request to view this tree
+                  </Button>
+                ) : (
+                  <Button>View this tree</Button>
+                )}
+              </Group>
+            </Paper>
           ))}
-        </ul>
+        </Stack>
       )}
-      {!loading && error && <div>ok {JSON.stringify(error)}</div>}
     </Container>
-  )
-}
+  );
+};
 
-export default authProtected(Home)
+export default authProtected(Home);
