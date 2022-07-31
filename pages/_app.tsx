@@ -1,15 +1,15 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
 
-import { AppShell, Header, MantineProvider } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import { NhostClient, NhostNextProvider } from "@nhost/nextjs";
 import { NhostApolloProvider } from "@nhost/react-apollo";
 import { inspect } from "@xstate/inspect";
 
-import NavBar from "../components/NavBar";
 import { BACKEND_URL } from "../helpers";
+import AppHeader from "../components/AppHeader";
 
 import "../styles/globals.css";
 
@@ -47,6 +47,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         >
           <ModalsProvider>
             <NotificationsProvider>
+              <AppHeader />
               <Component {...pageProps} />
             </NotificationsProvider>
           </ModalsProvider>
