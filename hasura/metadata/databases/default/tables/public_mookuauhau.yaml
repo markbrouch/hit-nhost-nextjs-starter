@@ -58,8 +58,11 @@ select_permissions:
         - owner_id
         - visibility
       filter:
-        owner_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - visibility:
+              _eq: public
+          - owner_id:
+              _eq: X-Hasura-User-Id
 update_permissions:
   - role: user
     permission:

@@ -89,6 +89,7 @@ select_permissions:
         mookuauhau:
           visibility:
             _eq: public
+      limit: 50
   - role: user
     permission:
       columns:

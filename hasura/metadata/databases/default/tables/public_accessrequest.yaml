@@ -1,0 +1,55 @@
+table:
+  schema: public
+  name: accessrequest
+object_relationships:
+  - name: mookuauhau
+    using:
+      foreign_key_constraint_on: mookuauhau_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        requester_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - connection
+        - create_timestamp
+        - mookuauhau_id
+        - name
+        - owner_id
+        - purpose
+        - request_id
+        - request_status
+        - requester_id
+        - type_of_data
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - request_id
+        - mookuauhau_id
+        - requester_id
+        - owner_id
+        - name
+        - connection
+        - purpose
+        - type_of_data
+        - request_status
+        - create_timestamp
+      filter:
+        _or:
+          - owner_id:
+              _eq: X-Hasura-User-Id
+          - requester_id:
+              _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - request_status
+      filter:
+        owner_id:
+          _eq: X-Hasura-User-Id
+      check:
+        owner_id:
+          _eq: X-Hasura-User-Id
