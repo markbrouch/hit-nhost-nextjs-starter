@@ -1,0 +1,1 @@
+DROP VIEW mookuauhau_public;
